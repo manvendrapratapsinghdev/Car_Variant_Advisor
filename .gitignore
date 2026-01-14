@@ -104,6 +104,13 @@ ENV/
 env.bak/
 venv.bak/
 
+# ChromaDB vector database collection directories (UUID-based, regenerable)
+data/car_variants_db/*/
+chroma_db/*/
+
+# Streamlit logs
+streamlit.log
+
 # Spyder project settings
 .spyderproject
 .spyproject
