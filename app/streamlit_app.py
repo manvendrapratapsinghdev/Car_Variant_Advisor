@@ -6,7 +6,9 @@ import streamlit as st
 import sys
 import os
 import base64
-sys.path.append('/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26')
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 from src.database.queries import init_queries, get_all_makes, get_models_by_make, get_variants_by_model, get_variant_details, find_upgrade_options
 from src.agent.simple_recommender import SimpleRecommendationEngine
 from src.agent.nlg_engine import NLGEngine
@@ -290,7 +292,8 @@ st.markdown("""
 # Initialize database and engine
 @st.cache_resource(show_spinner=False)
 def initialize_system():
-    init_queries("/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/car_variants_db")
+    db_path = os.path.join(project_root, "data/car_variants_db")
+    init_queries(db_path)
     from src.agent.direct_gemini_agent import DirectGeminiAgent
     return DirectGeminiAgent(), NLGEngine(), VoiceAssistant()
 
