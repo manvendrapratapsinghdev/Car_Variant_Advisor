@@ -188,8 +188,10 @@ class TierInference:
 
 
 if __name__ == "__main__":
-    # Load cleaned data
-    csv_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_cleaned.csv"
+    # Load cleaned data - use relative paths
+    import os
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    csv_path = os.path.join(project_root, "data/processed/cars_cleaned.csv")
     
     print("Loading cleaned data...")
     df = pd.read_csv(csv_path)
@@ -198,7 +200,7 @@ if __name__ == "__main__":
     df_with_tiers = TierInference.process_dataframe(df)
     
     # Save
-    output_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_with_tiers.csv"
+    output_path = os.path.join(project_root, "data/processed/cars_with_tiers.csv")
     df_with_tiers.to_csv(output_path, index=False)
     print(f"\nSaved data with tiers to {output_path}")
     

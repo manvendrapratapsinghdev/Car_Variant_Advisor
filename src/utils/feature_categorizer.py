@@ -231,8 +231,10 @@ class FeatureCategorizer:
 
 
 if __name__ == "__main__":
-    # Load data with tiers
-    csv_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_with_tiers.csv"
+    # Load data with tiers - use relative paths
+    import os
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    csv_path = os.path.join(project_root, "data/processed/cars_with_tiers.csv")
     
     print("Loading data with tiers...")
     df = pd.read_csv(csv_path)
@@ -241,7 +243,7 @@ if __name__ == "__main__":
     df_with_features = FeatureCategorizer.process_dataframe(df)
     
     # Save
-    output_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_final_processed.csv"
+    output_path = os.path.join(project_root, "data/processed/cars_final_processed.csv")
     
     # Note: features column is dict, need to save differently
     # For CSV, save as JSON string
@@ -252,7 +254,7 @@ if __name__ == "__main__":
     print(f"\nSaved processed data to {output_path}")
     
     # Also save as pickle to preserve dict structure
-    pickle_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_final_processed.pkl"
+    pickle_path = os.path.join(project_root, "data/processed/cars_final_processed.pkl")
     df_with_features.to_pickle(pickle_path)
     print(f"Saved pickle format to {pickle_path}")
     

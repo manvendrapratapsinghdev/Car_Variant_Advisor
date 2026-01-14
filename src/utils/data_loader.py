@@ -97,6 +97,20 @@ def load_and_clean_data(csv_path: str) -> pd.DataFrame:
     after_drop = len(df)
     print(f"Dropped {before_drop - after_drop} variants with missing critical fields")
     
+    # Remove zero or negative price entries
+    before_zero = len(df)
+    df = df[df['price_numeric'] > 0].copy()
+    after_zero = len(df)
+    if before_zero - after_zero > 0:
+        print(f"Removed {before_zero - after_zero} variants with zero or negative prices")
+    
+    # Remove duplicate rows (exact duplicates across all columns)
+    before_dup = len(df)
+    df = df.drop_duplicates().copy()
+    after_dup = len(df)
+    if before_dup - after_dup > 0:
+        print(f"Removed {before_dup - after_dup} exact duplicate rows")
+    
     # Create unique IDs
     print("Creating variant IDs...")
     df['variant_id'] = df.apply(
@@ -104,13 +118,13 @@ def load_and_clean_data(csv_path: str) -> pd.DataFrame:
         axis=1
     )
     
-    # Check for duplicate IDs
+    # Check for duplicate IDs (same Make, Model, Variant combination)
     duplicates = df['variant_id'].duplicated().sum()
     if duplicates > 0:
-        print(f"Warning: Found {duplicates} duplicate variant IDs")
-        # Add counter suffix to duplicates
-        df['variant_id'] = df.groupby('variant_id').cumcount().astype(str).replace('0', '')
-        df['variant_id'] = df['variant_id'].apply(lambda x: x if x == '' else '_' + x)
+        print(f"Warning: Found {duplicates} duplicate variant IDs (same Make/Model/Variant)")
+        # Keep only the first occurrence of each variant_id
+        df = df.drop_duplicates(subset=['variant_id'], keep='first').copy()
+        print(f"Kept first occurrence, removed {duplicates} duplicate variants")
     
     # Basic data quality checks
     print("\n=== Data Quality Summary ===")
@@ -132,9 +146,10 @@ def save_cleaned_data(df: pd.DataFrame, output_path: str):
 
 
 if __name__ == "__main__":
-    # Paths
-    input_csv = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/cars_ds_final.csv"
-    output_csv = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_cleaned.csv"
+    # Paths - use relative paths
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    input_csv = os.path.join(project_root, "cars_ds_final.csv")
+    output_csv = os.path.join(project_root, "data/processed/cars_cleaned.csv")
     
     # Load and clean
     df_cleaned = load_and_clean_data(input_csv)
