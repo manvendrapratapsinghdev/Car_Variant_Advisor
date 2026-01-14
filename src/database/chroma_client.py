@@ -161,9 +161,11 @@ class CarVariantDB:
 
 def main():
     """Main ingestion script."""
-    # Paths
-    pickle_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/processed/cars_final_processed.pkl"
-    db_path = "/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/car_variants_db"
+    # Paths - use relative paths from project root
+    import os
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    pickle_path = os.path.join(project_root, "data/processed/cars_final_processed.pkl")
+    db_path = os.path.join(project_root, "data/car_variants_db")
     
     # Load data
     print("Loading processed data...")
