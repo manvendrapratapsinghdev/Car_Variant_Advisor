@@ -17,8 +17,11 @@ from src.utils.feature_comparison import build_feature_comparison_matrix
 from src.utils.feature_price_chart import generate_feature_price_chart
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables (suppress errors if .env doesn't exist)
+try:
+    load_dotenv()
+except:
+    pass
 
 # Page config
 st.set_page_config(
@@ -292,7 +295,11 @@ st.markdown("""
 # Initialize database and engine
 @st.cache_resource(show_spinner=False)
 def initialize_system():
-    db_path = os.path.join(project_root, "data/car_variants_db")
+    # Use absolute path for database
+    db_path = os.path.join(project_root, "data", "car_variants_db")
+    if not os.path.exists(db_path):
+        st.error(f"❌ Database not found at {db_path}. Please run setup first.")
+        st.stop()
     init_queries(db_path)
     from src.agent.direct_gemini_agent import DirectGeminiAgent
     return DirectGeminiAgent(), NLGEngine(), VoiceAssistant()
