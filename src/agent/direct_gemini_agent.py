@@ -9,13 +9,16 @@ import google.generativeai as genai
 import json
 import sys
 import re
-sys.path.append('/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26')
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 from src.database.queries import init_queries, get_variant_details, find_upgrade_options
 
 load_dotenv()
 
-# Initialize
-init_queries("/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/car_variants_db")
+# Initialize with correct path
+db_path = os.path.join(project_root, "data/car_variants_db")
+init_queries(db_path)
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 

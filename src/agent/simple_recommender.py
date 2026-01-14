@@ -2,14 +2,18 @@
 Simplified recommendation engine without LangChain agent complexity.
 Direct function-based approach for faster, more reliable results.
 """
+import os
 import sys
-sys.path.append('/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26')
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 from src.database.queries import init_queries, get_variant_details, find_upgrade_options
 from typing import Dict, List, Optional
 import json
 
-# Initialize database
-init_queries("/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/car_variants_db")
+# Initialize database with correct path
+db_path = os.path.join(project_root, "data/car_variants_db")
+init_queries(db_path)
 
 
 class SimpleRecommendationEngine:

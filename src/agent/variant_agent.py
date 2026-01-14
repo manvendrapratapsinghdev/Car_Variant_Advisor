@@ -10,15 +10,18 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.tools import Tool
 from langchain.prompts import PromptTemplate
 import sys
-sys.path.append('/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26')
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 from src.database.queries import init_queries, get_variant_details, find_upgrade_options
 import json
 
 # Load environment variables
 load_dotenv()
 
-# Initialize database queries
-init_queries("/Users/d111879/Documents/Project/DEMO/Hackthon/HT_Jan_26/data/car_variants_db")
+# Initialize database queries with correct path
+db_path = os.path.join(project_root, "data/car_variants_db")
+init_queries(db_path)
 
 
 def tool_get_variant_details(input_str: str) -> str:
