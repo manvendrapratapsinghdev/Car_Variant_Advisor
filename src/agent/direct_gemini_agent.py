@@ -54,9 +54,9 @@ class DirectGeminiAgent:
             
             self.trace.append(f"✅ Found: {selected['variant_name']} at ₹{selected['price']:,.0f}")
             
-            # Step 2: Find upgrades
-            self.trace.append(f"🔎 Step 2: Searching for up to {num_recommendations} higher tier variants...")
-            upgrades = find_upgrade_options(make, model, selected['tier_order'], limit=num_recommendations)
+            # Step 2: Find upgrades (fetch more to account for filtering)
+            self.trace.append(f"🔎 Step 2: Searching for higher tier variants...")
+            upgrades = find_upgrade_options(make, model, selected['tier_order'], limit=num_recommendations + 5)
             
             if not upgrades:
                 self.trace.append("🏆 This is already the top variant!")
@@ -67,7 +67,41 @@ class DirectGeminiAgent:
                     'trace': self.trace
                 }
             
-            self.trace.append(f"✅ Found {len(upgrades)} upgrade option(s)")
+            self.trace.append(f"✅ Found {len(upgrades)} potential upgrade(s)")
+            
+            # Filter out zero-difference upgrades before AI analysis
+            self.trace.append(f"🔍 Pre-filtering upgrades with zero feature differences...")
+            valid_upgrades = []
+            skipped_count = 0
+            
+            for upgrade in upgrades:
+                additional_features = self._calculate_feature_diff(selected, upgrade)
+                total_new = sum(len(feats) for feats in additional_features.values())
+                
+                if total_new == 0:
+                    skipped_count += 1
+                    self.trace.append(f"  ⚠️  Skipped {upgrade['variant_name']} - No additional features")
+                    continue
+                
+                valid_upgrades.append(upgrade)
+            
+            if skipped_count > 0:
+                self.trace.append(f"ℹ️  Filtered out {skipped_count} upgrade(s) with zero feature differences")
+            
+            if not valid_upgrades:
+                self.trace.append(f"ℹ️  No upgrades with additional features available")
+                return {
+                    'status': 'success',
+                    'is_top_variant': True,
+                    'selected_variant': selected,
+                    'upgrade_options': [],
+                    'message': 'No upgrades with additional features are available for this variant.',
+                    'trace': self.trace
+                }
+            
+            # Limit to requested number
+            upgrades = valid_upgrades[:num_recommendations]
+            self.trace.append(f"✅ Found {len(upgrades)} valid upgrade(s) for AI analysis")
             
             # Step 3: Use Gemini AI to analyze and recommend
             self.trace.append(f"🤖 Step 3: Analyzing upgrades with Gemini AI...")

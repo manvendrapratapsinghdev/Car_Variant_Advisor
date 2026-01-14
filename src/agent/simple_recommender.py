@@ -90,9 +90,10 @@ class SimpleRecommendationEngine:
                 "trace": trace_steps
             }
         
-        # Step 3: Find upgrade options
-        trace_steps.append(f"Step 2: Finding up to {num_recommendations} upgrade options (tier > {selected_variant['tier_order']})")
-        upgrades = find_upgrade_options(make, model, selected_variant['tier_order'], limit=num_recommendations)
+        # Step 3: Find upgrade options (fetch more to account for filtering)
+        trace_steps.append(f"Step 2: Finding upgrade options (tier > {selected_variant['tier_order']})")
+        # Fetch more than needed to ensure we have enough after filtering
+        upgrades = find_upgrade_options(make, model, selected_variant['tier_order'], limit=num_recommendations + 5)
         
         if not upgrades:
             trace_steps.append("✓ No higher variants available")
@@ -105,14 +106,22 @@ class SimpleRecommendationEngine:
                 "trace": trace_steps
             }
         
-        trace_steps.append(f"✓ Found {len(upgrades)} upgrade option(s)")
+        trace_steps.append(f"✓ Found {len(upgrades)} potential upgrade(s)")
         
-        # Step 3: Calculate differences for each upgrade
-        trace_steps.append(f"Step 3: Calculating feature differences for {len(upgrades)} upgrade(s)")
+        # Step 3: Calculate differences and filter out zero-difference upgrades
+        trace_steps.append(f"Step 3: Analyzing feature differences and filtering valid upgrades")
         
         upgrade_recommendations = []
-        for i, upgrade in enumerate(upgrades, 1):  # Use all available upgrades (up to limit)
+        skipped_count = 0
+        
+        for i, upgrade in enumerate(upgrades, 1):
             diff = SimpleRecommendationEngine.calculate_feature_difference(selected_variant, upgrade)
+            
+            # Skip upgrades with zero new features (duplicate or same variant)
+            if diff['total_new_features'] == 0:
+                skipped_count += 1
+                trace_steps.append(f"  ⚠️  Skipped {upgrade['variant_name']} - No additional features (0 new features)")
+                continue
             
             # Create recommendation text
             if diff['total_new_features'] > 0:
@@ -120,7 +129,7 @@ class SimpleRecommendationEngine:
             else:
                 value_assessment = "Similar features"
             
-            trace_steps.append(f"  Upgrade {i}: {upgrade['variant_name']} - +₹{diff['price_difference']:,.0f} for {diff['total_new_features']} new features")
+            trace_steps.append(f"  ✓ Upgrade {len(upgrade_recommendations) + 1}: {upgrade['variant_name']} - +₹{diff['price_difference']:,.0f} for {diff['total_new_features']} new features")
             
             upgrade_recommendations.append({
                 "variant": upgrade,
@@ -130,8 +139,27 @@ class SimpleRecommendationEngine:
                 "cost_per_feature": diff['cost_per_feature'],
                 "value_assessment": value_assessment
             })
+            
+            # Stop once we have enough valid recommendations
+            if len(upgrade_recommendations) >= num_recommendations:
+                break
         
-        trace_steps.append("✓ Analysis complete")
+        if skipped_count > 0:
+            trace_steps.append(f"ℹ️  Filtered out {skipped_count} upgrade(s) with zero feature differences")
+        
+        # Check if we have any valid upgrades after filtering
+        if not upgrade_recommendations:
+            trace_steps.append("✓ No upgrades with additional features available")
+            return {
+                "status": "success",
+                "is_top_variant": True,
+                "selected_variant": selected_variant,
+                "upgrade_options": [],
+                "message": "No upgrades with additional features are available for this variant.",
+                "trace": trace_steps
+            }
+        
+        trace_steps.append(f"✓ Analysis complete - {len(upgrade_recommendations)} valid upgrade(s) found")
         
         return {
             "status": "success",
