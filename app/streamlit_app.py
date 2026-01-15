@@ -6,6 +6,18 @@ import streamlit as st
 import sys
 import os
 import base64
+
+try:
+    if sys.version_info >= (3, 13):
+        from pydantic import typing as pydantic_typing
+
+        def _patched_evaluate_forwardref(type_, globalns, localns):
+            return type_._evaluate(globalns, localns, recursive_guard=set())
+
+        pydantic_typing.evaluate_forwardref = _patched_evaluate_forwardref
+except ImportError:
+    pass
+
 # Add project root to path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
@@ -19,14 +31,12 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-
 # Page config
 st.set_page_config(
     page_title="AI Car Variant Advisor",
     page_icon="🚗",
     layout="wide"
 )
-
 # Custom CSS - Professional Theme (Pink & Purple with Sky Blue)
 st.markdown("""
 <style>
