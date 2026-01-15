@@ -16,11 +16,25 @@ from src.database.queries import init_queries, get_variant_details, find_upgrade
 
 load_dotenv()
 
+
+def _resolve_gemini_api_key() -> str:
+    key = os.getenv("GEMINI_API_KEY")
+    if not key:
+        try:
+            import streamlit as st
+
+            key = st.secrets.get("GEMINI_API_KEY")
+        except ImportError:
+            key = None
+    if not key:
+        raise RuntimeError("GEMINI_API_KEY is missing; set it via environment vars or Streamlit secrets")
+    return key
+
+
 # Initialize with correct path
 db_path = os.path.join(project_root, "data/car_variants_db")
 init_queries(db_path)
-# genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-genai.configure(api_key="AIzaSyDz6msKVEfM4WSnWcXmDpJyQRxFPkF6frY")
+genai.configure(api_key=_resolve_gemini_api_key())
 
 
 
