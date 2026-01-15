@@ -12,18 +12,11 @@ class VariantQueries:
     
     def __init__(self, db_path: str = "./data/car_variants_db"):
         """Initialize with database connection."""
-        import os
-        # Ensure absolute path for cloud deployment
-        if not os.path.isabs(db_path):
-            # If relative path, make it absolute relative to project root
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            db_path = os.path.join(project_root, db_path)
-        
         self.db = CarVariantDB(persist_directory=db_path)
         self.collection = self.db.get_collection()
         
         if not self.collection:
-            raise Exception(f"Database collection not found at {db_path}. Run chroma_client.py first to ingest data.")
+            raise Exception("Database collection not found. Run chroma_client.py first to ingest data.")
     
     def get_all_makes(self) -> List[str]:
         """

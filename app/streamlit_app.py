@@ -17,11 +17,8 @@ from src.utils.feature_comparison import build_feature_comparison_matrix
 from src.utils.feature_price_chart import generate_feature_price_chart
 from dotenv import load_dotenv
 
-# Load environment variables (suppress errors if .env doesn't exist)
-try:
-    load_dotenv()
-except:
-    pass
+# Load environment variables
+load_dotenv()
 
 # Page config
 st.set_page_config(
@@ -39,8 +36,8 @@ st.markdown("""
     :root {
         --primary: #E91E63;
         --secondary: #9C27B0;
-        --background: #E3F2FD;
-        --sidebar-bg: #BBDEFB;
+        --background: #FFFFFF;
+        --sidebar-bg: #F5F5F5;
         --surface: #FFFFFF;
         --text-primary: #212121;
         --text-secondary: #757575;
@@ -51,6 +48,18 @@ st.markdown("""
     
     /* Global Styles */
     .main {
+        background-color: var(--background) !important;
+    }
+    
+    .stApp {
+        background-color: var(--background) !important;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background-color: var(--background) !important;
+    }
+    
+    .block-container {
         background-color: var(--background) !important;
     }
     
@@ -79,6 +88,13 @@ st.markdown("""
     
     section[data-testid="stSidebar"] > div {
         background-color: var(--sidebar-bg) !important;
+    }
+    
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] div {
+        color: var(--text-primary) !important;
     }
     
     /* Buttons */
@@ -295,11 +311,7 @@ st.markdown("""
 # Initialize database and engine
 @st.cache_resource(show_spinner=False)
 def initialize_system():
-    # Use absolute path for database
-    db_path = os.path.join(project_root, "data", "car_variants_db")
-    if not os.path.exists(db_path):
-        st.error(f"❌ Database not found at {db_path}. Please run setup first.")
-        st.stop()
+    db_path = os.path.join(project_root, "data/car_variants_db")
     init_queries(db_path)
     from src.agent.direct_gemini_agent import DirectGeminiAgent
     return DirectGeminiAgent(), NLGEngine(), VoiceAssistant()
@@ -317,19 +329,20 @@ st.markdown("""
             margin: -1rem -1rem 1.5rem -1rem;">
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 0.8rem;">
-            <span style="font-size: 2rem;">🚗</span>
+            <span style="font-size: 2rem; margin-top: 1.5rem;">🚗</span>
             <span style="color: #9C27B0; 
                          font-size: 2.25rem; 
                          font-weight: 600;
                          letter-spacing: 0.5px;
-                         margin-left: 0.5rem;">
+                         margin-left: 0.5rem;
+            margin-top: 2.0rem;">
                  AI Car Variant Advisor</span>
             </span>
             <span style="color: #A0A0A0; 
                          font-size: 0.75rem; 
                          font-weight: 600;
                          letter-spacing: 0.5px;
-                         margin-left: 0.5rem;">
+                         margin-left: 0.5rem; margin-top: 1.5rem;">
                 POWERED BY <span style="color: #6366F1; font-weight: 700;">Gemini AI</span>
             </span>
         </div>

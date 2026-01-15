@@ -29,12 +29,6 @@ class CarVariantDB:
         Args:
             persist_directory: Directory to store ChromaDB data
         """
-        # Ensure absolute path for cloud deployment compatibility
-        if not os.path.isabs(persist_directory):
-            # If relative path, make it absolute relative to project root
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            persist_directory = os.path.join(project_root, persist_directory)
-        
         self.persist_directory = persist_directory
         
         # Create directory if it doesn't exist
