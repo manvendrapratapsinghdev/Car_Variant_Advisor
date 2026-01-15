@@ -364,29 +364,30 @@ st.markdown("""
     }
 
     div[data-testid="stExpander"] > button {
-        display: flex !important;
+        display: grid !important;
+        grid-template-columns: 1fr auto;
         align-items: center !important;
-        justify-content: flex-start !important;
         gap: 0.65rem !important;
         position: relative;
         width: 100% !important;
-        padding-right: 3rem !important;
+        padding-right: 1rem !important;
     }
 
     div[data-testid="stExpander"] > button span:last-child {
         display: none !important;
     }
 
+    div[data-testid="stExpander"] > button span span[data-testid="stIconMaterial"] {
+        display: none !important;
+    }
+
     div[data-testid="stExpander"] > button::after {
         content: "▼";
-        position: absolute;
-        right: 1.25rem;
         font-size: 1.2rem;
         color: var(--secondary);
         transition: transform 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        height: 100%;
+        justify-self: end;
+        grid-column: 2;
     }
 
     div[data-testid="stExpander"][aria-expanded="true"] > button::after {
@@ -780,7 +781,7 @@ if show_button and selected_variant:
         else:
             # Show detailed error information
             if result['status'] == 'error':
-                st.error(f"❌ AI Analysis Failed: {result.get('message', 'Unknown error')}")
+                st.error(f"{result.get('message', 'Unknown error')}")
                 
                 # Show trace if available
                 if result.get('trace'):
