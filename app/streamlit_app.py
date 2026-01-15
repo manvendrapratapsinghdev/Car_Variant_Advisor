@@ -363,36 +363,7 @@ st.markdown("""
         border-color: var(--secondary) !important;
     }
 
-    div[data-testid="stExpander"] > button {
-        display: grid !important;
-        grid-template-columns: 1fr auto;
-        align-items: center !important;
-        gap: 0.65rem !important;
-        position: relative;
-        width: 100% !important;
-        padding-right: 1rem !important;
-    }
 
-    div[data-testid="stExpander"] > button span:last-child {
-        display: none !important;
-    }
-
-    div[data-testid="stExpander"] > button span span[data-testid="stIconMaterial"] {
-        display: none !important;
-    }
-
-    div[data-testid="stExpander"] > button::after {
-        content: "▼";
-        font-size: 1.2rem;
-        color: var(--secondary);
-        transition: transform 0.2s ease;
-        justify-self: end;
-        grid-column: 2;
-    }
-
-    div[data-testid="stExpander"][aria-expanded="true"] > button::after {
-        transform: rotate(-180deg);
-    }
     
     /* Caption text styling */
     .main .stCaption {
