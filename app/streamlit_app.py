@@ -680,7 +680,7 @@ if show_button and selected_variant:
             result = engine.get_recommendations(selected_make, selected_model, selected_variant, num_recommendations)
         
         # Show AI analysis results
-        if result['status'] == 'success' and result.get('ai_recommendation'):
+        if result and isinstance(result, dict) and result.get('status') == 'success' and result.get('ai_recommendation'):
             st.success("✅ AI Analysis Complete!")
             st.info(result['ai_recommendation'])
             st.caption("*️⃣ Note: Scores are AI recommendations based on value analysis. Final decision should be yours based on your specific needs and preferences.")
@@ -726,7 +726,7 @@ if show_button and selected_variant:
                     st.markdown(step)
         else:
             # Show detailed error information
-            if result['status'] == 'error':
+            if result and isinstance(result, dict) and result.get('status') == 'error':
                 st.error(f"{result.get('message', 'Unknown error')}")
                 
                 # Show trace if available
@@ -734,11 +734,11 @@ if show_button and selected_variant:
                     with st.expander("🔍 Error Details"):
                         for step in result['trace']:
                             st.markdown(step)
-            elif upgrades:
+            elif result and isinstance(result, dict) and result.get('upgrade_options'):
                 st.warning("⚠️ Upgrade options shown above. AI analysis unavailable.")
                 st.caption(f"Reason: {result.get('message', 'No AI recommendation returned')}")
             else:
-                st.success("🏆 You've selected the top-tier variant!")
+                st.error("⚠️ Unable to process your request. Please try again.")
 st.markdown(
     """
     <div style='text-align: center; color: gray;'>
