@@ -368,7 +368,6 @@ st.markdown("""
         align-items: center !important;
         justify-content: space-between !important;
         gap: 0.65rem !important;
-        font-family: 'Inter', sans-serif !important;
         text-align: left !important;
     }
     
