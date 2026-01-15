@@ -366,9 +366,31 @@ st.markdown("""
     div[data-testid="stExpander"] > button {
         display: flex !important;
         align-items: center !important;
-        justify-content: space-between !important;
+        justify-content: flex-start !important;
         gap: 0.65rem !important;
-        text-align: left !important;
+        position: relative;
+        width: 100% !important;
+        padding-right: 3rem !important;
+    }
+
+    div[data-testid="stExpander"] > button span:last-child {
+        display: none !important;
+    }
+
+    div[data-testid="stExpander"] > button::after {
+        content: "▼";
+        position: absolute;
+        right: 1.25rem;
+        font-size: 1.2rem;
+        color: var(--secondary);
+        transition: transform 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    div[data-testid="stExpander"][aria-expanded="true"] > button::after {
+        transform: rotate(-180deg);
     }
     
     /* Caption text styling */
