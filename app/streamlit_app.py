@@ -229,15 +229,6 @@ st.markdown("""
         padding: 12px 16px !important;
     }
     
-    /* Expanders */
-    .streamlit-expanderHeader {
-        background-color: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 8px !important;
-        font-family: 'Poppins', sans-serif !important;
-        font-weight: 600 !important;
-    }
-    
     /* Alerts */
     div[data-testid="stSuccess"] {
         background-color: rgba(76, 175, 80, 0.1) !important;
@@ -352,18 +343,6 @@ st.markdown("""
     }
     
     /* Expander styling */
-    div[data-testid="stExpander"] {
-        background-color: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 8px !important;
-        margin-bottom: 8px !important;
-    }
-    
-    div[data-testid="stExpander"]:hover {
-        border-color: var(--secondary) !important;
-    }
-
-
     
     /* Caption text styling */
     .main .stCaption {
