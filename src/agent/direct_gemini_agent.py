@@ -163,6 +163,13 @@ The **[Best Variant Name]** offers the BEST value for money. [Explain why this i
                 ai_recommendation = "AI recommendation is currently unavailable due to high demand."
             self.trace.append(f"✅ AI analysis with comparative scoring complete!")
             
+        except Exception as exc:  # pylint: disable=broad-except
+            self.trace.append(f"❌ Gemini failure: {str(exc)}")
+            return {
+                'status': 'error',
+                'message': 'AI analysis is currently unavailable due to temporary service limits. Please try again later.',
+                'trace': self.trace
+            }
             # Parse scores from AI response
             variant_scores = self._parse_scores(ai_recommendation, upgrades)
             
