@@ -19,7 +19,9 @@ load_dotenv()
 # Initialize with correct path
 db_path = os.path.join(project_root, "data/car_variants_db")
 init_queries(db_path)
-genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+# genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+genai.configure("AIzaSyDz6msKVEfM4WSnWcXmDpJyQRxFPkF6frY")
+
 
 
 class DirectGeminiAgent:
