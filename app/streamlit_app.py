@@ -97,6 +97,63 @@ st.markdown("""
         color: var(--text-primary) !important;
     }
     
+    /* Sidebar internal content spacing */
+    section[data-testid="stSidebar"] h3 {
+        margin-top: 0.65rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    section[data-testid="stSidebar"] h3:first-of-type {
+        margin-top: 0.25rem !important;
+    }
+    
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] ol,
+    section[data-testid="stSidebar"] ul {
+        margin-left: 0.2rem !important;
+        margin-right: 0.25rem !important;
+        margin-bottom: 0.95rem !important;
+    }
+    
+    section[data-testid="stSidebar"] li {
+        margin-bottom: 0.4rem !important;
+    }
+    
+    section[data-testid="stSidebar"] hr {
+        margin: 1rem 0.25rem !important;
+    }
+
+    section[data-testid="stSidebar"] > div > div > div {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.9rem;
+    }
+
+    section[data-testid="stSidebar"] .stMarkdown > div {
+        margin: 0.25rem 0.35rem 1rem !important;
+    }
+
+    section[data-testid="stSidebar"] .stMarkdown div h3 {
+        margin: 0.6rem 0.4rem 0.3rem !important;
+    }
+
+    section[data-testid="stSidebar"] .stMarkdown div ol {
+        margin-left: 0.4rem !important;
+        margin-right: 0.4rem !important;
+    }
+
+    section[data-testid="stSidebar"] .stMarkdown div p {
+        margin: 0 0.4rem 0.9rem !important;
+    }
+    section[data-testid="stSidebar"] .stSlider {
+        padding-left: 1.0rem !important;
+        padding-right: 2.0rem !important;
+    }
+      section[data-testid="stSidebar"] .metric {
+        padding-left: 1.0rem !important;
+        padding-right: 2.0rem !important;
+    }
+            
     /* Buttons */
     .stButton > button {
         background: linear-gradient(135deg, #E91E63, #9C27B0) !important;
@@ -122,6 +179,7 @@ st.markdown("""
         border-radius: 8px !important;
         border: 1px solid var(--border) !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        margin-bottom: 1rem !important;
     }
     
     div[data-testid="stMetricValue"] {
@@ -134,6 +192,7 @@ st.markdown("""
     .dataframe {
         border-radius: 8px !important;
         overflow: hidden !important;
+        margin: 1rem 0 !important;
     }
     
     .dataframe thead tr {
