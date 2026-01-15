@@ -78,10 +78,6 @@ st.markdown("""
         color: var(--text-primary) !important;
     }
     
-    p, div, span, label {
-        font-family: 'Inter', sans-serif !important;
-    }
-    
     /* Header Gradient */
     .main h1 {
         background: linear-gradient(135deg, #E91E63, #9C27B0);
