@@ -1,0 +1,1621 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>TRD</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "SF Arabic", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "SF Arabic", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "SF Arabic", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "SF Arabic", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "SF Arabic", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2e6f1baf-98bd-8044-8c3d-edf64b5210da" class="page sans"><header><h1 class="page-title" dir="auto">TRD</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><div style="display:contents" dir="auto"><h1 id="2e6f1baf-98bd-8053-93a9-c176b8cf66d3" class="">Technical Requirements Document (TRD)</h1></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80f1-9749-d8a0253bc3ae" class="">AI Car Variant Comparison System</h2></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-805f-8a55-e4123abc0773" class=""><strong>Version:</strong> 1.0</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-801e-ba67-cd8d712544fc" class=""><strong>Date:</strong> January 2026</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80bc-ae1f-df1eb90d743e" class=""><strong>Document Type:</strong> Technical Specification for Development</p></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-808a-a3ab-dc9cb322018a"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80e7-a985-d83b9d016691" class="">1. SYSTEM OVERVIEW</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80c9-9b84-df8059e3ee76" class="">1.1 Architecture Diagram</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8051-992e-ed96dc19ccb3" class="code code-wrap"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌─────────────────────────────────────────────────────────┐
+│                    USER INTERFACE                        │
+│                    (Streamlit App)                       │
+│                                                          │
+│  [Make Dropdown] [Model Dropdown] [Variant Dropdown]   │
+│              [Show Recommendations Button]               │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│              AGENT ORCHESTRATION LAYER                   │
+│                 (LangChain + Gemini)                     │
+│                                                          │
+│  Logic: Receive variant → Query DB → Find upgrades      │
+│         → Calculate deltas → Format response             │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│                   TOOL LAYER                             │
+│                                                          │
+│  Tool 1: get_variant_details(make, model, variant)      │
+│  Tool 2: find_upgrade_options(current_variant)          │
+│  Tool 3: calculate_feature_diff(var1, var2)             │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│                  DATA LAYER                              │
+│           (MongoDB Atlas / ChromaDB)                     │
+│                                                          │
+│  Collections: car_variants                               │
+│  Indexes: make, model, variant_name, variant_tier       │
+│  Embeddings: 384-dim vectors for semantic search        │
+└─────────────────────────────────────────────────────────┘
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80ae-9071-e1fa7507b91c"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80be-8f21-d0a3ac117840" class="">2. DATA MODEL SPECIFICATION</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80d2-834c-d1465aee266c" class="">2.1 Database Choice Decision Matrix</h3></div><div style="display:contents" dir="ltr"><table id="2e6f1baf-98bd-80ff-b425-d464a40d8849" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8038-809a-f1c0a9e23d06"><th id="iuLQ" class="simple-table-header-color simple-table-header">Criteria</th><th id="Kv:=" class="simple-table-header-color simple-table-header">MongoDB Atlas</th><th id="Y@qZ" class="simple-table-header-color simple-table-header">ChromaDB (Local)</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8036-a63d-d5ec795e26d2"><td id="iuLQ" class=""><strong>Setup Time</strong></td><td id="Kv:=" class="">15 mins</td><td id="Y@qZ" class="">5 mins</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8039-baa2-e65a1fbc8418"><td id="iuLQ" class=""><strong>Free Tier</strong></td><td id="Kv:=" class="">512MB, 3 indexes</td><td id="Y@qZ" class="">Unlimited local</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80a0-9def-d5567a959240"><td id="iuLQ" class=""><strong>Vector Search</strong></td><td id="Kv:=" class="">Native support</td><td id="Y@qZ" class="">Native support</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80fc-a8e1-f94ecfc406ad"><td id="iuLQ" class=""><strong>Internet Dependency</strong></td><td id="Kv:=" class="">Required</td><td id="Y@qZ" class="">None</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80b8-9ec7-cd62111e223d"><td id="iuLQ" class=""><strong>Hackathon Risk</strong></td><td id="Kv:=" class="">Low (proven)</td><td id="Y@qZ" class="">Low (simpler)</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8029-97cf-ffcd74a1f903"><td id="iuLQ" class=""><strong>Production Ready</strong></td><td id="Kv:=" class="">Yes</td><td id="Y@qZ" class="">Needs migration</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8043-855c-df58f3196511" class=""><strong>DECISION: Start with ChromaDB for hackathon speed, migrate to MongoDB Atlas for production</strong></p></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80e2-a137-e756984b4305"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80c6-9d8a-fc7d2820e8a6" class="">2.2 Collection Schema: <code>car_variants</code></h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80dc-8e32-e12dcb4c8c1c" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">{
+    # Identification
+    &quot;id&quot;: &quot;maruti_swift_zxi_plus_2024&quot;,
+    &quot;make&quot;: &quot;Maruti&quot;,
+    &quot;model&quot;: &quot;Swift&quot;,
+    &quot;variant_name&quot;: &quot;ZXi+&quot;,
+    &quot;variant_tier&quot;: &quot;top&quot;,  # Values: base, mid, high, top
+    &quot;model_year&quot;: 2024,
+
+    # Pricing
+    &quot;price_ex_showroom&quot;: 849000,
+    &quot;price_on_road_delhi&quot;: 965000,
+
+    # Features (Categorized)
+    &quot;features&quot;: {
+        &quot;safety&quot;: [
+            &quot;6 airbags&quot;,
+            &quot;ABS with EBD&quot;,
+            &quot;ESP (Electronic Stability Program)&quot;,
+            &quot;Hill Hold Assist&quot;,
+            &quot;Rear parking sensors&quot;,
+            &quot;Reverse camera&quot;
+        ],
+        &quot;comfort&quot;: [
+            &quot;Automatic climate control&quot;,
+            &quot;Rear AC vents&quot;,
+            &quot;Cruise control&quot;,
+            &quot;Height adjustable driver seat&quot;
+        ],
+        &quot;technology&quot;: [
+            &quot;7-inch touchscreen&quot;,
+            &quot;Apple CarPlay&quot;,
+            &quot;Android Auto&quot;,
+            &quot;Wireless charger&quot;,
+            &quot;Bluetooth connectivity&quot;
+        ],
+        &quot;exterior&quot;: [
+            &quot;Electric sunroof&quot;,
+            &quot;15-inch alloy wheels&quot;,
+            &quot;LED projector headlamps&quot;,
+            &quot;LED DRLs&quot;,
+            &quot;Body colored ORVMs&quot;
+        ],
+        &quot;convenience&quot;: [
+            &quot;Keyless entry&quot;,
+            &quot;Push button start&quot;,
+            &quot;Auto headlamps&quot;,
+            &quot;Electrically adjustable ORVMs&quot;
+        ]
+    },
+
+    # Technical Specifications
+    &quot;specifications&quot;: {
+        &quot;engine_cc&quot;: 1197,
+        &quot;horsepower&quot;: 89,
+        &quot;torque_nm&quot;: 113,
+        &quot;transmission&quot;: &quot;5-speed manual&quot;,
+        &quot;fuel_type&quot;: &quot;Petrol&quot;,
+        &quot;mileage_kmpl&quot;: 22.38,
+        &quot;fuel_tank_liters&quot;: 37,
+        &quot;seating_capacity&quot;: 5
+    },
+
+    # Hierarchy Navigation
+    &quot;hierarchy&quot;: {
+        &quot;tier_order&quot;: 4,  # 1=base, 2=mid, 3=high, 4=top
+        &quot;previous_variant&quot;: &quot;ZXi&quot;,
+        &quot;next_variant&quot;: null  # null for top variant
+    },
+
+    # Embeddings for Vector Search
+    &quot;feature_embedding&quot;: [0.234, -0.456, 0.789, ...],  # 384 dimensions
+
+    # Feature Summary (for embedding generation)
+    &quot;feature_summary&quot;: &quot;Premium Swift variant with electric sunroof, automatic climate control, 6 airbags, cruise control, wireless charging, LED projector headlamps, 15-inch alloy wheels, keyless entry&quot;,
+
+    # Metadata
+    &quot;created_at&quot;: &quot;2024-01-10T10:30:00Z&quot;,
+    &quot;data_source&quot;: &quot;kaggle_indian_cars_2024&quot;
+}
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8008-8a5c-f8a1c13c4026"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8058-8d7e-ee2267c98dd3" class="">2.3 Data Hierarchy Structure</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-804c-9964-e0fd93aa4b96" class="code code-wrap"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">Maruti (make)
+├── Swift (model)
+│   ├── LXi (base) - tier_order: 1
+│   ├── VXi (mid) - tier_order: 2
+│   ├── ZXi (high) - tier_order: 3
+│   └── ZXi+ (top) - tier_order: 4
+│
+├── Baleno (model)
+│   ├── Sigma (base) - tier_order: 1
+│   ├── Delta (mid) - tier_order: 2
+│   ├── Zeta (high) - tier_order: 3
+│   └── Alpha (top) - tier_order: 4
+│
+└── Brezza (model)
+    ├── LXi (base) - tier_order: 1
+    ├── VXi (mid) - tier_order: 2
+    ├── ZXi (high) - tier_order: 3
+    └── ZXi+ (top) - tier_order: 4
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-802e-9f0d-f1fc31ee9398"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80a7-8d1d-f4473aa8c17e" class="">3. AGENT DESIGN SPECIFICATION</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80b9-b81c-df7e55bd2bac" class="">3.1 Agent Architecture</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80a6-ab20-f9fc4654f364" class=""><strong>Framework:</strong> LangChain (v0.1.0+)</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80f0-9519-c7dd881b93de" class=""><strong>LLM:</strong> Google Gemini Pro (gemini-pro)</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-802e-8eee-c6f56b2afcd5" class=""><strong>Pattern:</strong> Tool-based agent (not ReAct for simplicity)</p></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80cb-8e1b-c4caf9647e34" class="">3.2 Agent Tools Definition</h3></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80c5-a377-fe32e1be0865" class="">Tool 1: <code>get_variant_details</code></h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8012-bc71-fc6694af00ea" class=""><strong>Purpose:</strong> Fetch complete details of user-selected variant</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80ec-8b42-e9d3805c4a55" class=""><strong>Function Signature:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80db-8601-e364b9a4f128" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def get_variant_details(make: str, model: str, variant_name: str) -&gt; dict:
+    &quot;&quot;&quot;
+    Retrieves variant information from database.
+
+    Args:
+        make: Car brand (e.g., &quot;Maruti&quot;)
+        model: Car model (e.g., &quot;Swift&quot;)
+        variant_name: Variant name (e.g., &quot;VXi&quot;)
+
+    Returns:
+        {
+            &quot;variant_name&quot;: &quot;VXi&quot;,
+            &quot;price&quot;: 699000,
+            &quot;features&quot;: {...},
+            &quot;tier_order&quot;: 2
+        }
+    &quot;&quot;&quot;
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-809b-9739-f463f9c449ee" class=""><strong>Implementation Logic:</strong></p></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80f3-83f7-f3c2aabd9494" class="numbered-list" start="1"><li>Query database with filters: <code>make</code>, <code>model</code>, <code>variant_name</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-8035-af8f-f0b01c225795" class="numbered-list" start="2"><li>Return single document</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80cb-9e58-f8f94da7979d" class="numbered-list" start="3"><li>Handle not found error → return error message</li></ol></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-809d-bfd4-fae92582a6f9"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80b4-9587-fa2d2c24818d" class="">Tool 2: <code>find_upgrade_options</code></h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8054-a9e1-d665633e662a" class=""><strong>Purpose:</strong> Find next 2 higher tier variants in same model</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80d3-bb2d-cc2d5d169e52" class=""><strong>Function Signature:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80f9-bcbe-d4be69bbbd93" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def find_upgrade_options(make: str, model: str, current_tier: int) -&gt; list:
+    &quot;&quot;&quot;
+    Finds upgrade variants (higher tiers only).
+
+    Args:
+        make: Car brand
+        model: Car model
+        current_tier: Current variant&#x27;s tier_order
+
+    Returns:
+        [
+            {
+                &quot;variant_name&quot;: &quot;ZXi&quot;,
+                &quot;price&quot;: 799000,
+                &quot;tier_order&quot;: 3,
+                &quot;features&quot;: {...}
+            },
+            {
+                &quot;variant_name&quot;: &quot;ZXi+&quot;,
+                &quot;price&quot;: 849000,
+                &quot;tier_order&quot;: 4,
+                &quot;features&quot;: {...}
+            }
+        ]
+    &quot;&quot;&quot;
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8055-a375-ccaaabb0274b" class=""><strong>Implementation Logic:</strong></p></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-8033-a286-c3d581c4c1f4" class="numbered-list" start="1"><li>Query: <code>make=X AND model=Y AND tier_order &gt; current_tier</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-8038-aee1-c79a8a13899d" class="numbered-list" start="2"><li>Sort by <code>tier_order</code> ascending</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80aa-80ab-c50fa4453959" class="numbered-list" start="3"><li>Limit to 2 results</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80c4-9b5a-d2ce6d194cfd" class="numbered-list" start="4"><li>If results &lt; 2, return available (handles top variant case)</li></ol></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80b4-8ca6-e842a5b68b2e"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80be-aad0-fd130798e4a1" class="">Tool 3: <code>calculate_feature_difference</code></h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8035-984b-c7e0ca46ac87" class=""><strong>Purpose:</strong> Compare two variants and extract unique features</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80dd-9972-db8f55e12293" class=""><strong>Function Signature:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80d7-839c-c510e8e93c84" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def calculate_feature_difference(variant1: dict, variant2: dict) -&gt; dict:
+    &quot;&quot;&quot;
+    Calculates price delta and unique features.
+
+    Args:
+        variant1: Lower tier variant data
+        variant2: Higher tier variant data
+
+    Returns:
+        {
+            &quot;price_difference&quot;: 100000,
+            &quot;additional_features&quot;: [
+                &quot;Sunroof&quot;,
+                &quot;2 extra airbags&quot;,
+                &quot;Cruise control&quot;
+            ],
+            &quot;cost_per_feature&quot;: 33333,
+            &quot;feature_categories&quot;: {
+                &quot;safety&quot;: [&quot;2 extra airbags&quot;],
+                &quot;comfort&quot;: [&quot;Cruise control&quot;],
+                &quot;exterior&quot;: [&quot;Sunroof&quot;]
+            }
+        }
+    &quot;&quot;&quot;
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80b4-97f7-ec1ca75edfa0" class=""><strong>Implementation Logic:</strong></p></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80bd-93de-d22bb9d3f513" class="numbered-list" start="1"><li>Calculate: <code>price_diff = variant2[&#x27;price&#x27;] - variant1[&#x27;price&#x27;]</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80df-bb7c-d16007d907ae" class="numbered-list" start="2"><li>For each feature category (safety, comfort, tech, exterior, convenience):<div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80da-a8aa-dc7b80513e3f" class="bulleted-list"><li style="list-style-type:disc">Find features in variant2 NOT in variant1 (set difference)</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-8065-a1bf-c8192fa85fa2" class="numbered-list" start="3"><li>Flatten all unique features into single list</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80ec-ac8a-ca5c0b648917" class="numbered-list" start="4"><li>Calculate: <code>cost_per_feature = price_diff / len(additional_features)</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80b0-ba4b-ef28735a099c" class="numbered-list" start="5"><li>Return structured diff</li></ol></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-809c-a7da-d170c0d1ce80"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-809c-87a3-f5e4587e805c" class="">3.3 Agent Workflow</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8052-b968-fc6490007be0" class=""><strong>Input:</strong> User selections (make, model, variant_name)</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80e4-960b-ed0d551335c7" class=""><strong>Execution Steps:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8035-8496-c93ab3388d99" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all"># Step 1: Get selected variant
+selected = get_variant_details(make, model, variant_name)
+
+# Step 2: Find upgrade options
+upgrades = find_upgrade_options(make, model, selected[&#x27;tier_order&#x27;])
+
+# Step 3: If no upgrades (top variant)
+if len(upgrades) == 0:
+    return &quot;You&#x27;ve selected the top variant! No upgrades available.&quot;
+
+# Step 4: Calculate differences for each upgrade
+recommendations = []
+for upgrade in upgrades:
+    diff = calculate_feature_difference(selected, upgrade)
+    recommendations.append({
+        &quot;variant&quot;: upgrade,
+        &quot;diff&quot;: diff
+    })
+
+# Step 5: Format response
+return format_recommendations(selected, recommendations)
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80c4-9b00-d8829c112504" class=""><strong>Output Format:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80ad-a843-deb325fbcd2e" class="code code-wrap"><code class="language-JSON" style="white-space:pre-wrap;word-break:break-all">{
+    &quot;selected_variant&quot;: {
+        &quot;name&quot;: &quot;VXi&quot;,
+        &quot;price&quot;: 699000,
+        &quot;features&quot;: [...]
+    },
+    &quot;upgrade_options&quot;: [
+        {
+            &quot;variant_name&quot;: &quot;ZXi&quot;,
+            &quot;price&quot;: 799000,
+            &quot;price_increase&quot;: 100000,
+            &quot;additional_features&quot;: [&quot;Auto AC&quot;, &quot;Alloy wheels&quot;],
+            &quot;cost_per_feature&quot;: 50000,
+            &quot;recommendation&quot;: &quot;Good value upgrade&quot;
+        },
+        {
+            &quot;variant_name&quot;: &quot;ZXi+&quot;,
+            &quot;price&quot;: 849000,
+            &quot;price_increase&quot;: 150000,
+            &quot;additional_features&quot;: [&quot;Sunroof&quot;, &quot;6 airbags&quot;, &quot;Cruise control&quot;],
+            &quot;cost_per_feature&quot;: 50000,
+            &quot;recommendation&quot;: &quot;Premium choice&quot;
+        }
+    ]
+}
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-808c-b1b6-fdfd009c5347"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80e1-9020-dc7b4789b702" class="">4. EMBEDDING STRATEGY</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8075-895b-e3d8a9e60e79" class="">4.1 Why Embeddings?</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-809d-8e76-e80797c233fe" class=""><strong>Use Case:</strong> Enable semantic search for similar variants across brands</p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8070-9939-ccc76203de16" class="bulleted-list"><li style="list-style-type:disc">Example: &quot;Find variants similar to Swift ZXi+ in other brands&quot;</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-807f-8d94-e9a386aa8431" class="bulleted-list"><li style="list-style-type:disc">Future feature (not hackathon MVP)</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80d7-a5a8-c51acdc7fdc7" class="">4.2 Embedding Model</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80f5-a1ff-eff04b9f3ad7" class=""><strong>Model:</strong> SentenceTransformer (<code>all-MiniLM-L6-v2</code>)</p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80cf-9430-e27abaf90ae5" class="bulleted-list"><li style="list-style-type:disc"><strong>Dimensions:</strong> 384</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8018-93f0-e5dde9ab50a0" class="bulleted-list"><li style="list-style-type:disc"><strong>Runs:</strong> Locally (no API cost)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8078-a343-f3e1198f85f7" class="bulleted-list"><li style="list-style-type:disc"><strong>Speed:</strong> ~50ms per embedding</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8001-9f01-c034eca33a9d" class="">4.3 Embedding Generation Process</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-806d-b124-d79ddde4ecec" class=""><strong>Input Text Construction:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8081-a90c-ce5bfca08f52" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def create_embedding_text(variant_doc):
+    text = f&quot;&quot;&quot;
+    {variant_doc[&#x27;make&#x27;]} {variant_doc[&#x27;model&#x27;]} {variant_doc[&#x27;variant_name&#x27;]}
+    Price: {variant_doc[&#x27;price_ex_showroom&#x27;]} rupees
+    Tier: {variant_doc[&#x27;variant_tier&#x27;]}
+    Safety: {&#x27;, &#x27;.join(variant_doc[&#x27;features&#x27;][&#x27;safety&#x27;])}
+    Comfort: {&#x27;, &#x27;.join(variant_doc[&#x27;features&#x27;][&#x27;comfort&#x27;])}
+    Technology: {&#x27;, &#x27;.join(variant_doc[&#x27;features&#x27;][&#x27;technology&#x27;])}
+    Exterior: {&#x27;, &#x27;.join(variant_doc[&#x27;features&#x27;][&#x27;exterior&#x27;])}
+    &quot;&quot;&quot;
+    return text.strip()
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8021-942b-d462f6645735" class=""><strong>Embedding Generation:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80e1-b724-e6e3535b5618" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">from sentence_transformers import SentenceTransformer
+
+embedder = SentenceTransformer(&#x27;all-MiniLM-L6-v2&#x27;)
+
+for variant in variants:
+    text = create_embedding_text(variant)
+    embedding = embedder.encode(text).tolist()  # Returns 384-dim list
+    variant[&#x27;feature_embedding&#x27;] = embedding
+    # Save to database
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80c9-a6d1-e2e0f5833327"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-807c-bde6-cb632fb5d060" class="">5. UI SPECIFICATION (STREAMLIT)</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-804d-826c-e35c2c911f04" class="">5.1 Page Layout</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80ae-8555-e8b99986d2b3" class="code code-wrap"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">┌────────────────────────────────────────────────────┐
+│  🚗 AI Car Variant Advisor                         │
+│  Find the perfect variant for your budget          │
+└────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  SELECT YOUR CAR                                    │
+│                                                     │
+│  Brand:    [Dropdown: Maruti ▼]                    │
+│  Model:    [Dropdown: Swift ▼]                     │
+│  Variant:  [Dropdown: VXi ▼]                       │
+│                                                     │
+│            [Show Recommendations]                   │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  YOUR SELECTION                                     │
+│                                                     │
+│  Maruti Swift VXi                                   │
+│  ₹6,99,000 (Ex-showroom)                           │
+│                                                     │
+│  Features:                                          │
+│  Safety: 4 airbags, ABS, EBD                       │
+│  Comfort: Manual AC, Fabric seats                  │
+│  Technology: Basic touchscreen, Bluetooth          │
+│  Exterior: Steel wheels, Halogen headlamps         │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  🤖 SMART UPGRADE SUGGESTIONS                       │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  OPTION 1: Swift ZXi                                │
+│  ₹7,99,000 (+₹1,00,000)                            │
+│                                                     │
+│  Additional Features:                               │
+│  ✓ Automatic climate control                       │
+│  ✓ 15-inch alloy wheels                            │
+│  ✓ Rear parking sensors                            │
+│  ✓ LED DRLs                                        │
+│                                                     │
+│  💡 Value: ₹25,000 per feature                     │
+│  [Consider This Upgrade]                           │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  OPTION 2: Swift ZXi+                               │
+│  ₹8,49,000 (+₹1,50,000)                            │
+│                                                     │
+│  Additional Features:                               │
+│  ✓ Electric sunroof                                │
+│  ✓ 6 airbags (2 extra)                             │
+│  ✓ Cruise control                                  │
+│  ✓ Wireless charger                                │
+│  ✓ All ZXi features                                │
+│                                                     │
+│  💡 Value: ₹30,000 per feature                     │
+│  [Premium Choice]                                  │
+└─────────────────────────────────────────────────────┘
+</code></pre></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-805b-a5bb-d589c71a0318" class="">5.2 UI Components Specification</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8075-a143-e36ac4d57364" class=""><strong>Component 1: Selection Panel</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80b0-a36b-f9d271c65f79" class="bulleted-list"><li style="list-style-type:disc">3 cascading dropdowns</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-808b-9273-cd4baef52a96" class="bulleted-list"><li style="list-style-type:disc">Make dropdown → Triggers model dropdown population</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8071-b54d-c83580666e03" class="bulleted-list"><li style="list-style-type:disc">Model dropdown → Triggers variant dropdown population</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-809a-a03a-ce483137674c" class="bulleted-list"><li style="list-style-type:disc">Submit button with loading state</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8080-bd2a-c7e34ef2c3e9" class=""><strong>Component 2: Selected Variant Card</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80be-988a-d901082f60cb" class="bulleted-list"><li style="list-style-type:disc">Large heading with variant name</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8072-9a00-c7a4a04b6f0f" class="bulleted-list"><li style="list-style-type:disc">Price prominently displayed</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8060-8e2b-c8e1f70cb36b" class="bulleted-list"><li style="list-style-type:disc">Features grouped by category</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8088-b67f-f91d42943fdc" class="bulleted-list"><li style="list-style-type:disc">Expandable sections for each category</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-803f-b49c-fd214651a3d7" class=""><strong>Component 3: Upgrade Suggestion Cards</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-809b-a237-cd26c19bc8d4" class="bulleted-list"><li style="list-style-type:disc">Maximum 2 cards</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-804e-bb73-d7bc56f5f110" class="bulleted-list"><li style="list-style-type:disc">Highlighted price difference (green text)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80e0-87ee-eb13ec4e295f" class="bulleted-list"><li style="list-style-type:disc">Feature list with checkmarks</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8022-9ace-f2bc5d2a71ac" class="bulleted-list"><li style="list-style-type:disc">Cost-per-feature calculation</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80be-8c25-d9cd3eb934ad" class="bulleted-list"><li style="list-style-type:disc">Call-to-action button (future: links to dealer)</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-807c-ad31-d13fb3f3caf5" class=""><strong>Component 4: Top Variant Handler</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80fb-a54e-e503b8e10620" class="bulleted-list"><li style="list-style-type:disc">Special message card</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80ce-93e2-d5f88de800bf" class="bulleted-list"><li style="list-style-type:disc">Trophy/star icon</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80ed-b42c-cecddce4c3a2" class="bulleted-list"><li style="list-style-type:disc">&quot;You&#x27;ve selected the best!&quot; message</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80e5-823e-eb437b571c02" class="bulleted-list"><li style="list-style-type:disc">List all features (no comparison needed)</li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8062-8155-d7f6171041b9"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8004-956b-d2b2eb5ff2c0" class="">6. API CONTRACTS</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80f1-8c5d-c2f9c49dff23" class="">6.1 Database Query API</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80a3-ad3a-f5062dd37c99" class=""><strong>Query 1: Get All Makes</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8054-9d86-ff984423c9f0" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">GET /api/makes
+Response: [&quot;Maruti&quot;, &quot;Hyundai&quot;, &quot;Tata&quot;, &quot;Mahindra&quot;, &quot;Honda&quot;]
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80fa-b08b-d74f7d1b3374" class=""><strong>Query 2: Get Models by Make</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8069-b5ac-e76a8d255e26" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">GET /api/models?make=Maruti
+Response: [&quot;Swift&quot;, &quot;Baleno&quot;, &quot;Brezza&quot;, &quot;Ertiga&quot;]
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8051-9629-ce25b76ffe6c" class=""><strong>Query 3: Get Variants by Model</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-809b-9fe8-feb20335077d" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">GET /api/variants?make=Maruti&amp;model=Swift
+Response: [
+    {&quot;name&quot;: &quot;LXi&quot;, &quot;tier&quot;: &quot;base&quot;},
+    {&quot;name&quot;: &quot;VXi&quot;, &quot;tier&quot;: &quot;mid&quot;},
+    {&quot;name&quot;: &quot;ZXi&quot;, &quot;tier&quot;: &quot;high&quot;},
+    {&quot;name&quot;: &quot;ZXi+&quot;, &quot;tier&quot;: &quot;top&quot;}
+]
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80e9-b693-f61918150326" class=""><strong>Query 4: Get Full Variant Details</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8042-b3bc-d04c835fabde" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">GET /api/variant?make=Maruti&amp;model=Swift&amp;variant=VXi
+Response: {
+    &quot;id&quot;: &quot;maruti_swift_vxi_2024&quot;,
+    &quot;variant_name&quot;: &quot;VXi&quot;,
+    &quot;price&quot;: 699000,
+    &quot;features&quot;: {...},
+    &quot;tier_order&quot;: 2
+}
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8028-8632-f36677a27fe6"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-804e-91f4-f4adae951121" class="">6.2 Agent API</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80d8-a329-ce095ef3f2e5" class=""><strong>Endpoint:</strong> <code>/agent/recommend</code></p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80ab-9b8c-fdee1282e4b0" class=""><strong>Request:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-803f-9f87-d222256b603c" class="code code-wrap"><code class="language-JSON" style="white-space:pre-wrap;word-break:break-all">{
+    &quot;make&quot;: &quot;Maruti&quot;,
+    &quot;model&quot;: &quot;Swift&quot;,
+    &quot;variant_name&quot;: &quot;VXi&quot;
+}
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8070-b9df-cd02fa7f7ca2" class=""><strong>Response:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80ed-9344-fdb0bcdfca11" class="code code-wrap"><code class="language-JSON" style="white-space:pre-wrap;word-break:break-all">{
+    &quot;status&quot;: &quot;success&quot;,
+    &quot;selected_variant&quot;: {
+        &quot;name&quot;: &quot;VXi&quot;,
+        &quot;price&quot;: 699000,
+        &quot;features&quot;: {
+            &quot;safety&quot;: [&quot;4 airbags&quot;, &quot;ABS&quot;],
+            &quot;comfort&quot;: [&quot;Manual AC&quot;],
+            &quot;technology&quot;: [&quot;Basic touchscreen&quot;],
+            &quot;exterior&quot;: [&quot;Steel wheels&quot;]
+        }
+    },
+    &quot;upgrade_options&quot;: [
+        {
+            &quot;variant_name&quot;: &quot;ZXi&quot;,
+            &quot;price&quot;: 799000,
+            &quot;price_increase&quot;: 100000,
+            &quot;additional_features&quot;: {
+                &quot;comfort&quot;: [&quot;Auto AC&quot;],
+                &quot;exterior&quot;: [&quot;Alloy wheels&quot;],
+                &quot;safety&quot;: [&quot;Rear sensors&quot;]
+            },
+            &quot;feature_count&quot;: 3,
+            &quot;cost_per_feature&quot;: 33333
+        },
+        {
+            &quot;variant_name&quot;: &quot;ZXi+&quot;,
+            &quot;price&quot;: 849000,
+            &quot;price_increase&quot;: 150000,
+            &quot;additional_features&quot;: {
+                &quot;exterior&quot;: [&quot;Sunroof&quot;],
+                &quot;safety&quot;: [&quot;2 extra airbags&quot;],
+                &quot;comfort&quot;: [&quot;Cruise control&quot;],
+                &quot;technology&quot;: [&quot;Wireless charger&quot;]
+            },
+            &quot;feature_count&quot;: 5,
+            &quot;cost_per_feature&quot;: 30000
+        }
+    ],
+    &quot;is_top_variant&quot;: false
+}
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80e3-bc03-e12748074280" class=""><strong>Response (Top Variant Case):</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8008-8e21-ca0391eb97e8" class="code code-wrap"><code class="language-JSON" style="white-space:pre-wrap;word-break:break-all">{
+    &quot;status&quot;: &quot;success&quot;,
+    &quot;selected_variant&quot;: {
+        &quot;name&quot;: &quot;ZXi+&quot;,
+        &quot;price&quot;: 849000,
+        &quot;features&quot;: {...}
+    },
+    &quot;upgrade_options&quot;: [],
+    &quot;is_top_variant&quot;: true,
+    &quot;message&quot;: &quot;You&#x27;ve selected the top variant with all available features!&quot;
+}
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8098-835d-d5c2fdcddc4a"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80ed-ae33-c8394570d4dc" class="">7. DATA PIPELINE</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80f4-9d87-daf328e5b8cf" class="">7.1 Data Collection Process</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80cd-8517-f555c94976f3" class=""><strong>Step 1: Download Kaggle Dataset</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-802d-86ef-f1b7ae6acd00" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">kaggle datasets download -d medhekarabhinav5/indian-cars-dataset
+unzip indian-cars-dataset.zip
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8095-bd5b-dece759f1506" class=""><strong>Step 2: Data Cleaning Script</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80a4-a368-ec8eaacd735e" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">import pandas as pd
+
+# Load raw data
+df = pd.read_csv(&#x27;indian_cars_raw.csv&#x27;)
+
+# Clean column names
+df.columns = df.columns.str.lower().str.replace(&#x27; &#x27;, &#x27;_&#x27;)
+
+# Extract hierarchy
+df[&#x27;variant_tier&#x27;] = df[&#x27;variant_name&#x27;].apply(assign_tier)
+df[&#x27;tier_order&#x27;] = df[&#x27;variant_tier&#x27;].map({
+    &#x27;base&#x27;: 1, &#x27;mid&#x27;: 2, &#x27;high&#x27;: 3, &#x27;top&#x27;: 4
+})
+
+# Parse features from description column
+df[&#x27;features&#x27;] = df[&#x27;description&#x27;].apply(parse_features)
+
+# Save cleaned data
+df.to_json(&#x27;variants_clean.json&#x27;, orient=&#x27;records&#x27;, indent=2)
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80b1-bea2-efdda06ed362" class=""><strong>Step 3: Feature Parsing Logic</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80d0-a0b6-c5ca84b1fd59" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def parse_features(description_text):
+    &quot;&quot;&quot;
+    Extract features from unstructured text.
+    Example input: &quot;6 airbags, sunroof, cruise control, alloy wheels&quot;
+    &quot;&quot;&quot;
+    features = {
+        &quot;safety&quot;: [],
+        &quot;comfort&quot;: [],
+        &quot;technology&quot;: [],
+        &quot;exterior&quot;: [],
+        &quot;convenience&quot;: []
+    }
+
+    # Feature keyword mapping
+    safety_keywords = [&#x27;airbag&#x27;, &#x27;abs&#x27;, &#x27;ebd&#x27;, &#x27;esp&#x27;, &#x27;sensor&#x27;, &#x27;camera&#x27;]
+    comfort_keywords = [&#x27;ac&#x27;, &#x27;climate&#x27;, &#x27;seat&#x27;, &#x27;cruise&#x27;]
+    tech_keywords = [&#x27;touchscreen&#x27;, &#x27;carplay&#x27;, &#x27;android&#x27;, &#x27;bluetooth&#x27;, &#x27;charger&#x27;]
+    exterior_keywords = [&#x27;sunroof&#x27;, &#x27;alloy&#x27;, &#x27;led&#x27;, &#x27;drl&#x27;, &#x27;wheel&#x27;]
+
+    # Parse and categorize
+    for item in description_text.lower().split(&#x27;,&#x27;):
+        item = item.strip()
+        if any(kw in item for kw in safety_keywords):
+            features[&#x27;safety&#x27;].append(item)
+        elif any(kw in item for kw in comfort_keywords):
+            features[&#x27;comfort&#x27;].append(item)
+        # ... continue for other categories
+
+    return features
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8078-967b-c1f16e6cd89a"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-803e-abd3-d5a8c9b9700b" class="">7.2 Database Ingestion</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80a6-ba5c-e93a07a73f33" class=""><strong>ChromaDB Setup:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8075-96ad-fc12e76957b2" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">import chromadb
+from chromadb.utils import embedding_functions
+
+# Initialize ChromaDB
+client = chromadb.PersistentClient(path=&quot;./car_variants_db&quot;)
+
+# Create collection with embedding function
+sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name=&quot;all-MiniLM-L6-v2&quot;
+)
+
+collection = client.create_collection(
+    name=&quot;car_variants&quot;,
+    embedding_function=sentence_transformer_ef,
+    metadata={&quot;description&quot;: &quot;Car variant specifications&quot;}
+)
+
+# Load cleaned data
+import json
+with open(&#x27;variants_clean.json&#x27;, &#x27;r&#x27;) as f:
+    variants = json.load(f)
+
+# Insert documents
+ids = [v[&#x27;id&#x27;] for v in variants]
+documents = [create_embedding_text(v) for v in variants]
+metadatas = variants  # Store full variant data as metadata
+
+collection.add(
+    ids=ids,
+    documents=documents,
+    metadatas=metadatas
+)
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80af-9faa-d8fe6a76818d"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8050-8239-f2dbfa05ab66" class="">8. TECHNOLOGY DEPENDENCIES</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80bb-9afc-c04135cb046d" class="">8.1 Python Requirements</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80b2-a758-d28d270909c1" class="code code-wrap"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all"># requirements.txt
+
+# Core Framework
+streamlit==1.30.0
+langchain==0.1.0
+langchain-google-genai==0.0.6
+
+# Database
+chromadb==0.4.22
+# OR
+pymongo==4.6.1  # If using MongoDB Atlas
+
+# Embeddings
+sentence-transformers==2.2.2
+
+# Data Processing
+pandas==2.1.4
+numpy==1.24.3
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+</code></pre></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8048-b89d-dc2477194bfd" class="">8.2 Environment Variables</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8066-a844-d96e3fb9c17a" class="code code-wrap"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all"># API Keys
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Database (if MongoDB Atlas)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
+
+# Application
+DEBUG_MODE=True
+LOG_LEVEL=INFO
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80f4-a3fe-c350af78368e"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-809f-82b1-d0f94ba3650c" class="">9. DEVELOPMENT WORKFLOW</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8081-8fee-e5ba6f5b951e" class="">9.1 Project Structure</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-802f-9fc7-fd497cd76bac" class="code code-wrap"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">car-variant-advisor/
+│
+├── data/
+│   ├── raw/
+│   │   └── indian_cars_raw.csv
+│   ├── processed/
+│   │   └── variants_clean.json
+│   └── embeddings/
+│       └── car_variants_db/  # ChromaDB storage
+│
+├── src/
+│   ├── __init__.py
+│   ├── database/
+│   │   ├── __init__.py
+│   │   ├── chroma_client.py
+│   │   └── queries.py
+│   │
+│   ├── agent/
+│   │   ├── __init__.py
+│   │   ├── tools.py
+│   │   └── orchestrator.py
+│   │
+│   └── utils/
+│       ├── __init__.py
+│       ├── data_loader.py
+│       └── feature_parser.py
+│
+├── app/
+│   └── streamlit_app.py
+│
+├── scripts/
+│   ├── 01_download_data.py
+│   ├── 02_clean_data.py
+│   ├── 03_generate_embeddings.py
+│   └── 04_ingest_to_db.py
+│
+├── tests/
+│   ├── test_tools.py
+│   ├── test_agent.py
+│   └── test_database.py
+│
+├── .env
+├── .gitignore
+├── requirements.txt
+└── README.md
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80c5-9847-c5183aa97480"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8092-9c57-cea813a0c24d" class="">9.2 Development Phases</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80dd-8d9b-e3425d525723" class=""><strong>Phase 1: Data Setup (Day 1-2)</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8029-a114-ff2f39b23914" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Step 1: Download and clean data
+python scripts/01_download_data.py
+python scripts/02_clean_data.py
+
+# Step 2: Generate embeddings
+python scripts/03_generate_embeddings.py
+
+# Step 3: Ingest to database
+python scripts/04_ingest_to_db.py
+
+# Verify
+python -c &quot;from src.database.queries import get_all_makes; print(get_all_makes())&quot;
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80cb-9b73-eaa89cc63ffd" class=""><strong>Phase 2: Tool Development (Day 3-4)</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8043-a20b-dbbb40bd2fee" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Test individual tools
+python -m pytest tests/test_tools.py -v
+
+# Test tool 1
+python -c &quot;from src.agent.tools import get_variant_details; print(get_variant_details(&#x27;Maruti&#x27;, &#x27;Swift&#x27;, &#x27;VXi&#x27;))&quot;
+
+# Test tool 2
+python -c &quot;from src.agent.tools import find_upgrade_options; print(find_upgrade_options(&#x27;Maruti&#x27;, &#x27;Swift&#x27;, 2))&quot;
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80fd-9ad1-f6e1fcddd9ce" class=""><strong>Phase 3: Agent Integration (Day 5)</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80a7-9029-e0ccbedc1b43" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Test agent orchestrator
+python -m pytest tests/test_agent.py -v
+
+# Manual test
+python -c &quot;
+from src.agent.orchestrator import get_recommendations
+result = get_recommendations(&#x27;Maruti&#x27;, &#x27;Swift&#x27;, &#x27;VXi&#x27;)
+print(result)
+&quot;
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80e6-a214-f59ba37adb15" class=""><strong>Phase 4: UI Development (Day 6)</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80dc-bf0c-dd791d642c7b" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Run Streamlit app
+streamlit run app/streamlit_app.py
+
+# Test in browser at http://localhost:8501
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80ac-ada3-cb5adcaa7a66" class=""><strong>Phase 5: Deployment (Day 7)</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8028-8a8d-e40c37042ee5" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Deploy to Streamlit Cloud
+git add .
+git commit -m &quot;Final hackathon submission&quot;
+git push origin main
+
+# Configure in Streamlit Cloud dashboard
+# Add secrets (GEMINI_API_KEY)
+# Deploy from GitHub repo
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8096-ba17-c25643a65b88"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8038-b4b3-f6717a7446d5" class="">10. ERROR HANDLING</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80a7-92bc-cb2efcec2b98" class="">10.1 Database Errors</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80b0-b6d2-d11462f2cfac" class=""><strong>Error: Variant Not Found</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80d2-bf71-c1188aa38005" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def get_variant_details(make, model, variant_name):
+    try:
+        result = collection.get(
+            where={&quot;$and&quot;: [
+                {&quot;make&quot;: make},
+                {&quot;model&quot;: model},
+                {&quot;variant_name&quot;: variant_name}
+            ]}
+        )
+        if len(result[&#x27;ids&#x27;]) == 0:
+            return {
+                &quot;error&quot;: &quot;Variant not found&quot;,
+                &quot;message&quot;: f&quot;No variant &#x27;{variant_name}&#x27; found for {make} {model}&quot;
+            }
+        return result[&#x27;metadatas&#x27;][0]
+    except Exception as e:
+        return {&quot;error&quot;: str(e)}
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80df-8cb4-e692ecc26605" class=""><strong>Error: Database Connection Failed</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8023-bca8-fa26939568f6" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">try:
+    client = chromadb.PersistentClient(path=&quot;./car_variants_db&quot;)
+    collection = client.get_collection(&quot;car_variants&quot;)
+except Exception as e:
+    st.error(f&quot;Database connection failed: {e}&quot;)
+    st.stop()
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8043-b8f9-d2deb2f88874"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8037-b5ef-e7260bdd3d1b" class="">10.2 Agent Errors</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8086-a21d-e22f5f5f6678" class=""><strong>Error: LLM API Timeout</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80dd-bc44-cfd48e59d312" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">import time
+from langchain.llms import GoogleGenerativeAI
+
+def get_llm_with_retry(max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            llm = GoogleGenerativeAI(model=&quot;gemini-pro&quot;, temperature=0.3)
+            # Test call
+            llm(&quot;test&quot;)
+            return llm
+        except Exception as e:
+            if attempt &lt; max_retries - 1:
+                time.sleep(2 ** attempt)  # Exponential backoff
+            else:
+                raise e
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8034-acf9-e1cd873d7422" class=""><strong>Error: No Upgrade Options Available</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8027-96f9-e49c564836dd" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def find_upgrade_options(make, model, current_tier):
+    results = collection.get(
+        where={&quot;$and&quot;: [
+            {&quot;make&quot;: make},
+            {&quot;model&quot;: model},
+            {&quot;tier_order&quot;: {&quot;$gt&quot;: current_tier}}
+        ]},
+        limit=2
+    )
+
+    if len(results[&#x27;ids&#x27;]) == 0:
+        return {
+            &quot;is_top_variant&quot;: True,
+            &quot;message&quot;: &quot;You&#x27;ve selected the top variant!&quot;
+        }
+
+    return results[&#x27;metadatas&#x27;]
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-805b-a316-c976ff8c5808"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80a8-abfe-c0816812bee7" class="">10.3 UI Errors</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-801e-a05b-ebb75c7514fd" class=""><strong>Error: Empty Dropdown Selection</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-802b-a7f2-e168d721b2e1" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all"># In Streamlit app
+make = st.selectbox(&quot;Brand&quot;, options=get_all_makes())
+if not make:
+    st.warning(&quot;Please select a brand&quot;)
+    st.stop()
+
+model = st.selectbox(&quot;Model&quot;, options=get_models_by_make(make))
+if not model:
+    st.warning(&quot;Please select a model&quot;)
+    st.stop()
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8068-b33c-cc9cbc8df6ba" class=""><strong>Error: API Rate Limit</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8012-a0c1-c4251e6d0699" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">try:
+    recommendations = agent.run(query)
+except Exception as e:
+    if &quot;rate limit&quot; in str(e).lower():
+        st.error(&quot;Too many requests. Please wait 30 seconds and try again.&quot;)
+        time.sleep(30)
+    else:
+        st.error(f&quot;Error: {e}&quot;)
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8064-83b9-f6c93cfc84f4"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8082-a2dd-d8ecfbd22dfb" class="">11. TESTING STRATEGY</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8065-b6c1-e732d2e6cf79" class="">11.1 Unit Tests</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8076-b2c1-c3b9fdc8db7f" class=""><strong>Test: Tool 1 - Get Variant Details</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80f0-92aa-ce40b11bc9e2" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def test_get_variant_details():
+    result = get_variant_details(&quot;Maruti&quot;, &quot;Swift&quot;, &quot;VXi&quot;)
+assert result[&#x27;variant_name&#x27;] == &quot;VXi&quot;
+assert result[&#x27;price&#x27;] == 699000
+assert &#x27;features&#x27; in result</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8099-9376-e45f45d5982f" class=""><strong>Test: Tool 2 - Find Upgrades</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8071-8b83-ec2340b75505" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def test_find_upgrade_options():
+    # Test mid-tier (should return 2 upgrades)
+    result = find_upgrade_options(&quot;Maruti&quot;, &quot;Swift&quot;, 2)
+    assert len(result) == 2
+    assert result[0][&#x27;tier_order&#x27;] == 3
+    assert result[1][&#x27;tier_order&#x27;] == 4
+
+    # Test top-tier (should return 0 upgrades)
+    result_top = find_upgrade_options(&quot;Maruti&quot;, &quot;Swift&quot;, 4)
+    assert result_top[&#x27;is_top_variant&#x27;] == True</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-805b-8f31-d9a2a51bce06" class=""><strong>Test: Tool 3 - Feature Difference</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80f7-be11-c63752112dc8" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def test_calculate_feature_difference():
+    vxi = get_variant_details(&quot;Maruti&quot;, &quot;Swift&quot;, &quot;VXi&quot;)
+    zxi = get_variant_details(&quot;Maruti&quot;, &quot;Swift&quot;, &quot;ZXi&quot;)
+
+    diff = calculate_feature_difference(vxi, zxi)
+
+    assert diff[&#x27;price_difference&#x27;] == 100000
+    assert len(diff[&#x27;additional_features&#x27;]) &gt; 0
+    assert diff[&#x27;cost_per_feature&#x27;] &gt; 0
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-807a-8a1e-f0de9189b125"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-807b-8988-f5515d05fe0c" class="">11.2 Integration Tests</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80f9-93fc-db0ff0ff47c9" class=""><strong>Test: End-to-End Agent Flow</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8030-9ce2-d7cee21765a0" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def test_agent_recommendation_flow():
+    # Test normal variant
+    result = get_recommendations(&quot;Maruti&quot;, &quot;Swift&quot;, &quot;VXi&quot;)
+    assert result[&#x27;status&#x27;] == &#x27;success&#x27;
+    assert len(result[&#x27;upgrade_options&#x27;]) &gt; 0
+    assert result[&#x27;is_top_variant&#x27;] == False
+
+    # Test top variant
+    result_top = get_recommendations(&quot;Maruti&quot;, &quot;Swift&quot;, &quot;ZXi+&quot;)
+    assert result_top[&#x27;is_top_variant&#x27;] == True
+    assert len(result_top[&#x27;upgrade_options&#x27;]) == 0
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80bc-ba4a-f8e3651987c7"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8098-87a4-c0c23d56b41b" class="">11.3 Demo Test Cases</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-809f-afe1-e7ed04c726b6" class=""><strong>Test Case 1: Base Variant Selection</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-802b-b1b2-ddd0a746dcbb" class="bulleted-list"><li style="list-style-type:disc">Select: Maruti → Swift → LXi</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80c6-b31f-fd72fe7e31a9" class="bulleted-list"><li style="list-style-type:disc">Expected: 2 upgrade suggestions (VXi, ZXi)</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8041-b6f9-eb02b9a74a15" class=""><strong>Test Case 2: Mid Variant Selection</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80af-adb5-dd784d03e6ad" class="bulleted-list"><li style="list-style-type:disc">Select: Hyundai → Creta → EX</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8005-b1e6-d6447d9b0400" class="bulleted-list"><li style="list-style-type:disc">Expected: 2 upgrade suggestions (S, SX)</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8016-a9bc-d3458967e6f6" class=""><strong>Test Case 3: Top Variant Selection</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-809c-8797-e382f33a17a7" class="bulleted-list"><li style="list-style-type:disc">Select: Tata → Nexon → XZ+ Lux</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-806b-aa46-f39014db1b25" class="bulleted-list"><li style="list-style-type:disc">Expected: &quot;You&#x27;ve selected top variant&quot; message</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80d6-b0f6-cf54e8ad3d13" class=""><strong>Test Case 4: Model with 3 Variants</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8011-9bb7-d59803c61fb8" class="bulleted-list"><li style="list-style-type:disc">Select: Mahindra → Scorpio → S11</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80a7-865d-d0bf293b5900" class="bulleted-list"><li style="list-style-type:disc">Expected: 1 upgrade suggestion (only top variant available)</li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-805e-9795-cfa188aaf551"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80e6-846b-cbb5fa4d9307" class="">12. PERFORMANCE REQUIREMENTS</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8033-9b01-f60c2f2a5998" class="">12.1 Response Time Targets</h3></div><div style="display:contents" dir="ltr"><table id="2e6f1baf-98bd-8033-8a2b-c3667a557f2b" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80d2-8f68-d04fd062542b"><th id="Z~qf" class="simple-table-header-color simple-table-header">Operation</th><th id="HT&lt;K" class="simple-table-header-color simple-table-header">Target</th><th id="|\ta" class="simple-table-header-color simple-table-header">Maximum</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-806d-adb1-f055c856195d"><td id="Z~qf" class="">Dropdown population</td><td id="HT&lt;K" class="">&lt; 100ms</td><td id="|\ta" class="">200ms</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80a6-8367-ef4369139a28"><td id="Z~qf" class="">Database query</td><td id="HT&lt;K" class="">&lt; 200ms</td><td id="|\ta" class="">500ms</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8095-be9a-d27a89981f45"><td id="Z~qf" class="">Agent recommendation</td><td id="HT&lt;K" class="">&lt; 5s</td><td id="|\ta" class="">10s</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80bf-86c2-f8f3f734b876"><td id="Z~qf" class="">Full page load</td><td id="HT&lt;K" class="">&lt; 3s</td><td id="|\ta" class="">5s</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-809e-abf6-c38b33df2b15" class="">12.2 Resource Limits</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8094-b729-d5bbf1d366e4" class=""><strong>ChromaDB:</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80be-b0b6-e2aa9ef18d74" class="bulleted-list"><li style="list-style-type:disc">Storage: &lt; 100MB for 50-70 variants</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-806f-b119-cf085f5fdaeb" class="bulleted-list"><li style="list-style-type:disc">Memory: &lt; 500MB during operation</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8006-b163-cbf08c89c246" class=""><strong>Streamlit App:</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80a5-a6c5-fc157b5fb4f3" class="bulleted-list"><li style="list-style-type:disc">Memory: &lt; 1GB</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8040-9260-ca25b0b405fc" class="bulleted-list"><li style="list-style-type:disc">CPU: Single core sufficient</li></ul></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80ee-9c38-ed60a016f36a" class=""><strong>Gemini API:</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8098-b5d5-d7752d395f55" class="bulleted-list"><li style="list-style-type:disc">Free tier: 60 requests/minute</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80be-a7c5-e6c962bd208e" class="bulleted-list"><li style="list-style-type:disc">Strategy: Cache common queries</li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8037-9eeb-dd0c54c5cbaa"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8031-8b73-cf156901d117" class="">13. DEPLOYMENT SPECIFICATION</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8033-a640-ff85f9d3be34" class="">13.1 Streamlit Cloud Configuration</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-803d-bebb-e987b45f968a" class=""><strong>File: </strong><code><strong>.streamlit/config.toml</strong></code></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-803a-916f-c6438ec6ff64" class="code code-wrap"><code class="language-TOML" style="white-space:pre-wrap;word-break:break-all">[theme]
+primaryColor=&quot;#FF4B4B&quot;
+backgroundColor=&quot;#FFFFFF&quot;
+secondaryBackgroundColor=&quot;#F0F2F6&quot;
+textColor=&quot;#262730&quot;
+font=&quot;sans serif&quot;
+
+[server]
+headless = true
+port = 8501
+enableCORS = false
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8030-9620-e83d78a99189" class=""><strong>File: </strong><code><strong>.streamlit/secrets.toml</strong></code> (Not committed to Git)</p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80c7-ad76-d4a3f01c52b2" class="code code-wrap"><code class="language-TOML" style="white-space:pre-wrap;word-break:break-all">GEMINI_API_KEY = &quot;your_api_key_here&quot;
+</code></pre></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-809a-994c-e3f0db0b32f9" class="">13.2 Deployment Steps</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8080-abb7-cd6a5ae3fb5a" class=""><strong>Step 1: Prepare Repository</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8061-82d9-ee4ebb76a870" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Create .gitignore
+echo &quot;.env
+*.pyc
+__pycache__/
+.streamlit/secrets.toml
+data/embeddings/
+.DS_Store&quot; &gt; .gitignore
+
+# Commit code
+git add .
+git commit -m &quot;Ready for deployment&quot;
+git push origin main
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80e5-b019-f5d0cdc28980" class=""><strong>Step 2: Streamlit Cloud Setup</strong></p></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80f7-9248-c463c9b3c5ad" class="numbered-list" start="1"><li>Go to share.streamlit.io</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80f1-b4d4-f4e9e176ee8b" class="numbered-list" start="2"><li>Connect GitHub account</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80fd-a425-e9899a7b2c01" class="numbered-list" start="3"><li>Select repository</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-8096-9f4a-f353cc93184f" class="numbered-list" start="4"><li>Set main file: <code>app/streamlit_app.py</code></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80f2-b3e3-cf00d04a0276" class="numbered-list" start="5"><li>Add secrets (GEMINI_API_KEY)</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="2e6f1baf-98bd-80b6-9aa4-c5cee4d29c20" class="numbered-list" start="6"><li>Deploy</li></ol></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8029-9522-ec9bc4a6b928" class=""><strong>Step 3: Post-Deployment Verification</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8005-bcd0-f4c74ce29066" class="bulleted-list"><li style="list-style-type:disc">Test all 3 dropdowns</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8022-ae99-cc50c6228ad2" class="bulleted-list"><li style="list-style-type:disc">Test recommendation flow</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8059-b2cd-f35b2a1bb2b7" class="bulleted-list"><li style="list-style-type:disc">Test top variant edge case</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8088-9419-d6a238bccb1b" class="bulleted-list"><li style="list-style-type:disc">Check mobile responsiveness</li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8061-9f8f-d8a36c770605"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-800e-9024-fb0716dba1b7" class="">14. MONITORING &amp; LOGGING</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-801b-9bcf-e2237deec455" class="">14.1 Application Logging</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-801e-a242-d3f5f425f2b0" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format=&#x27;%(asctime)s - %(name)s - %(levelname)s - %(message)s&#x27;,
+    handlers=[
+        logging.FileHandler(&#x27;app.log&#x27;),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# Usage in tools
+def get_variant_details(make, model, variant_name):
+    logger.info(f&quot;Fetching variant: {make} {model} {variant_name}&quot;)
+    try:
+        result = collection.get(...)
+        logger.info(f&quot;Found variant: {result[&#x27;id&#x27;]}&quot;)
+        return result
+    except Exception as e:
+        logger.error(f&quot;Error fetching variant: {e}&quot;)
+        raise
+</code></pre></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8012-a59c-c8882a8d43b9" class="">14.2 Performance Monitoring</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-8088-97ce-c36df9328653" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">import time
+
+def monitor_performance(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+
+        logger.info(f&quot;{func.__name__} took {end_time - start_time:.2f}s&quot;)
+        return result
+    return wrapper
+
+@monitor_performance
+def get_variant_details(make, model, variant_name):
+    # ... function code
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8098-90e5-f9bb374017f5"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8050-8015-d086d2c2648b" class="">15. SECURITY CONSIDERATIONS</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8091-a3e6-f3ba5441244b" class="">15.1 API Key Management</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-8060-93de-e75804a601bd" class=""><strong>Never commit </strong><code><strong>.env</strong></code><strong> or secrets.toml</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80b7-81a9-cfaae86b793d" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># In .gitignore
+.env
+.streamlit/secrets.toml
+*.key
+</code></pre></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80a7-af48-eedc476b62bd" class=""><strong>Use environment variables</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80f7-b02e-cc31ad7d8635" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv(&#x27;GEMINI_API_KEY&#x27;)
+if not GEMINI_API_KEY:
+    raise ValueError(&quot;GEMINI_API_KEY not found in environment&quot;)
+</code></pre></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8018-a9be-e3b6badb0999" class="">15.2 Input Validation</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-801e-bfbd-db72f49e1f36" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">def validate_input(make, model, variant_name):
+    # Whitelist validation
+    valid_makes = get_all_makes()
+    if make not in valid_makes:
+        raise ValueError(f&quot;Invalid make: {make}&quot;)
+
+    # SQL injection prevention (not applicable for ChromaDB, but good practice)
+    if any(char in variant_name for char in [&#x27;;&#x27;, &#x27;--&#x27;, &#x27;/*&#x27;]):
+        raise ValueError(&quot;Invalid characters in variant name&quot;)
+
+    return True
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80a4-a9b8-f2bc00e0cbfb"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8020-a640-df0cfff78bc3" class="">16. FUTURE ENHANCEMENTS ROADMAP</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8038-8406-f08fc6846c2c" class="">Phase 1: Post-Hackathon (Month 1)</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8076-9615-cf5c6b404a36" class="bulleted-list"><li style="list-style-type:disc">Add user context input (&quot;I have 2 kids&quot;)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8033-902b-d886fe719751" class="bulleted-list"><li style="list-style-type:disc">Prioritize features based on context</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8006-813e-e6f7d4cb1bfb" class="bulleted-list"><li style="list-style-type:disc">Add feature comparison table view</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8016-9bbb-ec683a53b472" class="">Phase 2: Production Ready (Month 2-3)</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-808d-89f7-f19c80f00820" class="bulleted-list"><li style="list-style-type:disc">Scale to 50+ models across 10 brands</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-801e-85e9-c165813756c4" class="bulleted-list"><li style="list-style-type:disc">Add real-time price updates (API integration)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80b4-8c57-cd118dcb00eb" class="bulleted-list"><li style="list-style-type:disc">User authentication and saved comparisons</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8029-afa3-c4665e0fc0b0" class="">Phase 3: Advanced Features (Month 4-6)</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80a4-9f73-c4b79615f829" class="bulleted-list"><li style="list-style-type:disc">Cross-model comparison (Swift vs i20)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80b5-aba1-e527a2294ff0" class="bulleted-list"><li style="list-style-type:disc">EMI calculator integration</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80d8-8f51-e784a62b3d30" class="bulleted-list"><li style="list-style-type:disc">Resale value prediction (add XGBoost here)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-809d-b4da-d8a453c89281" class="bulleted-list"><li style="list-style-type:disc">Test drive booking</li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80b5-9ec4-d66f3f70950f"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-80aa-935b-c4c7e5c9b14c" class="">17. SUCCESS CRITERIA</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80ac-ab67-fd3039c329ca" class="">17.1 Hackathon Demo Success</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-800a-880c-f9d62b5782f1" class=""><strong>Must Achieve:</strong></p></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80ae-a1e9-efdbed931c01" class="bulleted-list"><li style="list-style-type:disc">✅ System works for 5 models without errors</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-805a-b1e2-c15e9727c6b1" class="bulleted-list"><li style="list-style-type:disc">✅ Recommendations are accurate (100% match expected)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80e3-902e-c8ec23780960" class="bulleted-list"><li style="list-style-type:disc">✅ UI loads in &lt; 5 seconds</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80f8-a2df-fd56871c8a89" class="bulleted-list"><li style="list-style-type:disc">✅ Agent responds in &lt; 10 seconds</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80fb-bf31-cd265b5f8dee" class="bulleted-list"><li style="list-style-type:disc">✅ Demo video recorded and submitted</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80ef-ba5c-f22dfa583cee" class="">17.2 Technical Quality Metrics</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80ac-ac53-c6f311c5cdb2" class="bulleted-list"><li style="list-style-type:disc">✅ Code coverage &gt; 70% (unit tests)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8056-924f-e08d80ff7282" class="bulleted-list"><li style="list-style-type:disc">✅ No hardcoded data in application code</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8029-941f-ffe7b5a6977a" class="bulleted-list"><li style="list-style-type:disc">✅ Clean separation: UI → Agent → Database</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-800e-9695-ed57244122b6" class="bulleted-list"><li style="list-style-type:disc">✅ Proper error handling (no crashes)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8035-a6a3-cb2a32b5ebba" class="bulleted-list"><li style="list-style-type:disc">✅ README with clear setup instructions</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80f7-b5a2-fe20c444351c" class="">17.3 Judge Appeal Factors</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-809d-9355-e4d1027fd6e8" class="bulleted-list"><li style="list-style-type:disc">✅ Clean, professional UI</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8058-b3af-d7b058f9af9d" class="bulleted-list"><li style="list-style-type:disc">✅ Clear value proposition (&quot;pay X, get Y&quot;)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80d5-a823-dbfaa18ce037" class="bulleted-list"><li style="list-style-type:disc">✅ Works end-to-end in live demo</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8095-a576-c2ffdbe4f6e9" class="bulleted-list"><li style="list-style-type:disc">✅ Scalable architecture shown</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-804d-8f11-f88d2382502c" class="bulleted-list"><li style="list-style-type:disc">✅ Future roadmap articulated</li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80af-9549-cfd5dc88a175"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8070-9ec2-e642e1171d6d" class="">18. RISK MITIGATION</h2></div><div style="display:contents" dir="ltr"><table id="2e6f1baf-98bd-8018-bd43-ef0f816934e7" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8070-b753-eb42df7919a1"><th id="rt=^" class="simple-table-header-color simple-table-header">Risk</th><th id=":O?I" class="simple-table-header-color simple-table-header">Probability</th><th id="WR`P" class="simple-table-header-color simple-table-header">Impact</th><th id="=oOu" class="simple-table-header-color simple-table-header">Mitigation</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8061-845d-e523fd4d18a3"><td id="rt=^" class="">Dataset missing variants</td><td id=":O?I" class="">Medium</td><td id="WR`P" class="">High</td><td id="=oOu" class="">Manually add 20 key variants</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8032-b17c-e3d6eea0b609"><td id="rt=^" class="">Gemini API quota exceeded</td><td id=":O?I" class="">Low</td><td id="WR`P" class="">High</td><td id="=oOu" class="">Implement response caching</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-8021-bf77-e8b4ce0fefc3"><td id="rt=^" class="">ChromaDB corruption</td><td id=":O?I" class="">Low</td><td id="WR`P" class="">Medium</td><td id="=oOu" class="">Daily backups, version control</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-80a8-b7dd-d0bcd91164bb"><td id="rt=^" class="">Streamlit Cloud deployment fails</td><td id=":O?I" class="">Low</td><td id="WR`P" class="">High</td><td id="=oOu" class="">Test locally first, have video backup</td></tr></div><div style="display:contents" dir="ltr"><tr id="2e6f1baf-98bd-805c-b8d4-c4815b434055"><td id="rt=^" class="">Agent gives wrong suggestions</td><td id=":O?I" class="">Medium</td><td id="WR`P" class="">High</td><td id="=oOu" class="">Unit tests for all edge cases</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80b4-b235-cde8577f65b0"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8011-bc30-f9759ad29a87" class="">19. APPENDIX</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8035-80c5-c6b732d352f8" class="">19.1 Sample Data Document</h3></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-80f1-a8f7-e3913ca5da48" class="code code-wrap"><code class="language-JSON" style="white-space:pre-wrap;word-break:break-all">{
+    &quot;id&quot;: &quot;maruti_swift_zxi_plus_2024&quot;,
+    &quot;make&quot;: &quot;Maruti&quot;,
+    &quot;model&quot;: &quot;Swift&quot;,
+    &quot;variant_name&quot;: &quot;ZXi+&quot;,
+    &quot;variant_tier&quot;: &quot;top&quot;,
+    &quot;model_year&quot;: 2024,
+    &quot;price_ex_showroom&quot;: 849000,
+    &quot;price_on_road_delhi&quot;: 965000,
+    &quot;features&quot;: {
+        &quot;safety&quot;: [
+            &quot;6 airbags&quot;,
+            &quot;ABS with EBD&quot;,
+            &quot;ESP&quot;,
+            &quot;Hill Hold Assist&quot;,
+            &quot;Rear parking sensors&quot;,
+            &quot;Reverse camera&quot;
+        ],
+        &quot;comfort&quot;: [
+            &quot;Automatic climate control&quot;,
+            &quot;Rear AC vents&quot;,
+            &quot;Cruise control&quot;,
+            &quot;Height adjustable driver seat&quot;
+        ],
+        &quot;technology&quot;: [
+            &quot;7-inch touchscreen&quot;,
+            &quot;Apple CarPlay&quot;,
+            &quot;Android Auto&quot;,
+            &quot;Wireless charger&quot;,
+            &quot;Bluetooth 5.0&quot;
+        ],
+        &quot;exterior&quot;: [
+            &quot;Electric sunroof&quot;,
+            &quot;15-inch alloy wheels&quot;,
+            &quot;LED projector headlamps&quot;,
+            &quot;LED DRLs&quot;,
+            &quot;Body colored ORVMs with turn indicators&quot;
+        ],
+        &quot;convenience&quot;: [
+            &quot;Keyless entry&quot;,
+            &quot;Push button start&quot;,
+            &quot;Auto headlamps&quot;,
+            &quot;Rain sensing wipers&quot;,
+            &quot;Electrically adjustable ORVMs&quot;
+        ]
+    },
+    &quot;specifications&quot;: {
+        &quot;engine_cc&quot;: 1197,
+        &quot;horsepower&quot;: 89,
+        &quot;torque_nm&quot;: 113,
+        &quot;transmission&quot;: &quot;5-speed manual&quot;,
+        &quot;fuel_type&quot;: &quot;Petrol&quot;,
+        &quot;mileage_kmpl&quot;: 22.38,
+        &quot;fuel_tank_liters&quot;: 37,
+        &quot;seating_capacity&quot;: 5,
+        &quot;boot_space_liters&quot;: 265
+    },
+    &quot;hierarchy&quot;: {
+        &quot;tier_order&quot;: 4,
+        &quot;previous_variant&quot;: &quot;ZXi&quot;,
+        &quot;next_variant&quot;: null
+    },
+    &quot;feature_embedding&quot;: [0.234, -0.456, 0.789, ...],
+    &quot;feature_summary&quot;: &quot;Premium Swift variant with electric sunroof, automatic climate control, 6 airbags, cruise control, wireless charging, LED projector headlamps, 15-inch alloy wheels, keyless entry, push button start&quot;,
+    &quot;created_at&quot;: &quot;2024-01-10T10:30:00Z&quot;,
+    &quot;data_source&quot;: &quot;kaggle_indian_cars_2024&quot;
+}
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80b2-8418-dfd73fc6e0b0"/></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-80cd-a98f-d61bd46d0b10" class="">19.2 Tool Implementation Reference</h3></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80a4-a5a4-cc40c3f7e07f" class=""><strong>Complete Tool 1 Implementation:</strong></p></div><div style="display:contents" dir="auto"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2e6f1baf-98bd-809b-bd47-dbc9f05ff9c9" class="code code-wrap"><code class="language-Python" style="white-space:pre-wrap;word-break:break-all">from typing import Dict, Optional
+import chromadb
+
+client = chromadb.PersistentClient(path=&quot;./car_variants_db&quot;)
+collection = client.get_collection(&quot;car_variants&quot;)
+
+def get_variant_details(make: str, model: str, variant_name: str) -&gt; Dict:
+    &quot;&quot;&quot;
+    Retrieves complete variant information from database.
+
+    Args:
+        make: Car manufacturer (e.g., &quot;Maruti&quot;)
+        model: Car model (e.g., &quot;Swift&quot;)
+        variant_name: Variant trim name (e.g., &quot;VXi&quot;)
+
+    Returns:
+        Dictionary with variant details or error message
+    &quot;&quot;&quot;
+    try:
+        results = collection.get(
+            where={
+                &quot;$and&quot;: [
+                    {&quot;make&quot;: make},
+                    {&quot;model&quot;: model},
+                    {&quot;variant_name&quot;: variant_name}
+                ]
+            }
+        )
+
+        if len(results[&#x27;ids&#x27;]) == 0:
+            return {
+                &quot;error&quot;: &quot;NOT_FOUND&quot;,
+                &quot;message&quot;: f&quot;Variant &#x27;{variant_name}&#x27; not found for {make} {model}&quot;
+            }
+
+        # Return first matching document (should be unique)
+        variant_data = results[&#x27;metadatas&#x27;][0]
+
+        return {
+            &quot;status&quot;: &quot;success&quot;,
+            &quot;data&quot;: variant_data
+        }
+
+    except Exception as e:
+        logger.error(f&quot;Database error in get_variant_details: {e}&quot;)
+        return {
+            &quot;error&quot;: &quot;DATABASE_ERROR&quot;,
+            &quot;message&quot;: str(e)
+        }
+</code></pre></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-80ac-a7b3-e1a28d8d1f8a"/></div><div style="display:contents" dir="auto"><h2 id="2e6f1baf-98bd-8055-987f-efebb7e78f35" class="">20. FINAL CHECKLIST</h2></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-805f-bf73-f2a468ac72a2" class="">Before Code Implementation</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8088-9d15-dc5cecef2223" class="bulleted-list"><li style="list-style-type:disc">[✓] PRD approved</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80d5-9071-da14a5403771" class="bulleted-list"><li style="list-style-type:disc">[✓] TRD reviewed and understood</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80a1-a7e5-d76aea8116fe" class="bulleted-list"><li style="list-style-type:disc">[✓] Data source confirmed (Kaggle dataset accessible)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80b6-82f3-d1e2ecc387e7" class="bulleted-list"><li style="list-style-type:disc">[✓] API keys obtained (Gemini)</li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80c3-8a23-fe056f0fd071" class="bulleted-list"><li style="list-style-type:disc">[✓] Development environment set up</li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8034-a290-f1022d1bc3b8" class="">Before Demo</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8061-9859-e8aa4d189a0d" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">All 5 models tested</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80a9-8317-dc53658d8db8" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Edge cases verified (top variant, single upgrade)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80b1-8a78-c6b90648756b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">UI polished and responsive</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80c7-9ae8-eb4916480925" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Demo script prepared</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-807c-8ab1-e8bc32cdfbe5" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Video recorded (backup)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80b9-acc4-e03daa166e3a" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">GitHub repo cleaned and documented</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h3 id="2e6f1baf-98bd-8022-a333-f843ab718af5" class="">Before Submission</h3></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80df-8bfc-da15da4b315b" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">README.md complete with setup instructions</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-807c-ab4d-d141a26c89e2" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">requirements.txt verified</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-8021-a651-ea7e7df1d671" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">.env.example provided (without real keys)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-806b-bace-fd48c7fb5616" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Code commented appropriately</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2e6f1baf-98bd-80f7-965e-f561d32f0a92" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Presentation slides ready</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8069-8b42-d49e20319835"/></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-808c-a4b7-cf7aa5ae1b51" class=""><strong>Document Status:</strong> ✅ Ready for Implementation</p></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-805c-8339-ccb44add3131" class=""><strong>Next Step:</strong> Begin Phase 1 - Data Setup</p></div><div style="display:contents" dir="auto"><hr id="2e6f1baf-98bd-8054-b2d3-e1a7de155704"/></div><div style="display:contents" dir="auto"><p id="2e6f1baf-98bd-80f9-8d8a-d834bce1dbc5" class=""><strong>Proceed to coding?</strong></p></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
