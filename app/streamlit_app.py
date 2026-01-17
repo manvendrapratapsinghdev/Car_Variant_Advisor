@@ -594,6 +594,7 @@ if search_button:
 
 budget_candidates = st.session_state.get("budget_candidates") or []
 budget_search_meta = st.session_state.get("budget_search_meta") or {}
+budget_search_params = st.session_state.get("budget_search_params") or {}
 
 if selected_make or selected_model:
     if selected_make and selected_model:
@@ -601,8 +602,16 @@ if selected_make or selected_model:
     elif selected_make:
         st.info(f"Showing results only for {selected_make} because you selected it.")
 
-if budget_search_meta.get("expanded") or budget_search_meta.get("used_fallback"):
+if budget_search_meta.get("used_fallback"):
     st.warning("No cars in selected range; showing nearest matches.")
+elif budget_search_meta.get("expanded"):
+    effective_pct = budget_search_meta.get("effective_pct")
+    requested_pct = budget_search_params.get("pct")
+    try:
+        if effective_pct is not None and requested_pct is not None and float(effective_pct) > float(requested_pct):
+            st.info(f"Expanded margin to {float(effective_pct):.0f}% to find enough matches.")
+    except (TypeError, ValueError):
+        pass
 
 st.markdown("### ⚙️ Variant")
 if budget_candidates:

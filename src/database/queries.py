@@ -27,7 +27,7 @@ class VariantQueries:
             Sorted list of unique make names
         """
         # Get all documents and extract unique makes
-        result = self.collection.get()
+        result = self.collection.get(include=["metadatas"])
         
         if not result['metadatas']:
             return []
@@ -45,9 +45,7 @@ class VariantQueries:
         Returns:
             Sorted list of model names
         """
-        result = self.collection.get(
-            where={"make": make}
-        )
+        result = self.collection.get(where={"make": make}, include=["metadatas"])
         
         if not result['metadatas']:
             return []
@@ -66,9 +64,7 @@ class VariantQueries:
         Returns:
             List of dicts with variant_name, tier_order, tier_name, price
         """
-        result = self.collection.get(
-            where={"$and": [{"make": make}, {"model": model}]}
-        )
+        result = self.collection.get(where={"$and": [{"make": make}, {"model": model}]}, include=["metadatas"])
         
         if not result['metadatas']:
             return []
@@ -97,7 +93,7 @@ class VariantQueries:
             (min_price, max_price) or (None, None) if no records
         """
         where = self._build_where_clause(make=make, model=model)
-        result = self.collection.get(where=where) if where else self.collection.get()
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
         metadatas = result.get('metadatas') or []
         prices = [meta.get('price') for meta in metadatas if isinstance(meta, dict) and isinstance(meta.get('price'), (int, float))]
         if not prices:
@@ -181,7 +177,8 @@ class VariantQueries:
                 {"model": model},
                 {"variant_name": variant_name}
             ]},
-            limit=1
+            limit=1,
+            include=["metadatas"],
         )
         
         if not result['metadatas']:
@@ -231,7 +228,8 @@ class VariantQueries:
                 {"make": make},
                 {"model": model},
                 {"tier_order": {"$gt": current_tier}}
-            ]}
+            ]},
+            include=["metadatas"],
         )
         
         if not result['metadatas']:
@@ -321,12 +319,24 @@ class VariantQueries:
         make: Optional[str] = None,
         model: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        where = self._build_where_clause(
-            make=make,
-            model=model,
-            price_filter={"$gte": float(min_price), "$lte": float(max_price)},
-        )
-        result = self.collection.get(where=where) if where else self.collection.get()
+        # Chroma's where syntax expects operator expressions to contain exactly one operator.
+        # So a range must be expressed as an $and of two separate comparisons.
+        clauses: List[Dict[str, Any]] = []
+        if make:
+            clauses.append({"make": make})
+        if model:
+            clauses.append({"model": model})
+        clauses.append({"price": {"$gte": float(min_price)}})
+        clauses.append({"price": {"$lte": float(max_price)}})
+
+        if not clauses:
+            where = None
+        elif len(clauses) == 1:
+            where = clauses[0]
+        else:
+            where = {"$and": clauses}
+
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
         return result.get('metadatas') or []
 
     def _fallback_nearest_neighbors(
@@ -338,7 +348,7 @@ class VariantQueries:
     ) -> List[Dict[str, Any]]:
         """Fallback when range query is empty: return nearest lower + nearest higher (then fill outward if needed)."""
         where = self._build_where_clause(make=make, model=model)
-        result = self.collection.get(where=where) if where else self.collection.get()
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
         metadatas = [
             m
             for m in (result.get('metadatas') or [])
