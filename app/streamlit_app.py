@@ -21,7 +21,15 @@ except ImportError:
 # Add project root to path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
-from src.database.queries import init_queries, get_all_makes, get_models_by_make, get_variants_by_model, get_variant_details, find_upgrade_options
+from src.database.queries import (
+    init_queries,
+    get_all_makes,
+    get_models_by_make,
+    get_variant_details,
+    find_upgrade_options,
+    get_price_range,
+    find_variants_by_budget,
+)
 from src.agent.simple_recommender import SimpleRecommendationEngine
 from src.agent.nlg_engine import NLGEngine
 from src.agent.voice_assistant import VoiceAssistant
@@ -416,9 +424,9 @@ with st.sidebar:
     st.markdown("### 🎯 How it works")
     st.markdown("""
     <ol style='font-size: 0.95rem; padding-left: 0.6rem;'>
-    <li>Select your desired brand, model, and variant</li>
-    <li>The AI analyzes higher tier variants</li>
-    <li>Get recommendations with price differences</li>
+    <li>Select your budget (amount + margin)</li>
+    <li>(Optional) Narrow results by brand and model</li>
+    <li>Select a variant to see upgrade options</li>
     </ol>
     """, unsafe_allow_html=True)
     st.divider()
@@ -457,50 +465,176 @@ st.markdown("""
                font-family: 'Poppins', sans-serif;
                font-size: 1.8rem;
                font-weight: 600;">
-        🎯 Select Your Dream Car
+        🎯 Search by Budget
     </h3>
     <p style="color: rgba(255, 255, 255, 0.9); 
               font-size: 1rem; 
               margin: 0 0 1rem 0;
               font-family: 'Inter', sans-serif;">
-        Choose your preferred brand, model, and tier
+        Pick a budget and optionally narrow by brand/model
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns(3)
+
+@st.cache_data(show_spinner=False)
+def _build_budget_options(step_rupees: int = 10_000):
+    min_p, max_p = get_price_range()
+    if min_p is None or max_p is None:
+        return []
+    start = int(min_p // step_rupees) * step_rupees
+    end = int((max_p + step_rupees - 1) // step_rupees) * step_rupees
+    return list(range(start, end + 1, step_rupees))
+
+
+def _format_budget_lakhs(rupees: int) -> str:
+    lakhs = float(rupees) / 100_000.0
+    return f"₹{lakhs:.2f} L"
+
+
+def _closest_index(values, target: int) -> int:
+    if not values:
+        return 0
+    return min(range(len(values)), key=lambda i: abs(int(values[i]) - int(target)))
+
+
+ALL_BRANDS = "All brands"
+ALL_MODELS = "All models"
+
+
+budget_options = _build_budget_options()
+
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.markdown("### 🏢 Brand")
-    makes = get_all_makes()
-    selected_make = st.selectbox("Brand", ["Select a brand..."] + makes, key="make", label_visibility="collapsed")
-    if selected_make == "Select a brand...":
-        selected_make = None
+    st.markdown("### 💰 Budget")
+    if budget_options:
+        default_idx = _closest_index(budget_options, 600_000)
+        selected_budget = st.selectbox(
+            "Budget",
+            budget_options,
+            index=default_idx,
+            format_func=_format_budget_lakhs,
+            key="budget_rupees",
+            label_visibility="collapsed",
+        )
+    else:
+        selected_budget = st.selectbox("Budget", ["No price data"], disabled=True, label_visibility="collapsed")
 
 with col2:
+    st.markdown("### 📏 Margin")
+    margin_options = [5, 10, 15, 20, 25, 30, 40, 50]
+    selected_margin = st.selectbox(
+        "Margin",
+        margin_options,
+        index=0,
+        format_func=lambda x: f"{x}%",
+        key="budget_margin_pct",
+        label_visibility="collapsed",
+    )
+
+with col3:
+    st.markdown("### 🏢 Brand")
+    makes = get_all_makes()
+    selected_make = st.selectbox(
+        "Brand",
+        [ALL_BRANDS] + makes,
+        key="make",
+        label_visibility="collapsed",
+    )
+    if selected_make == ALL_BRANDS:
+        selected_make = None
+
+with col4:
     st.markdown("### 🚗 Model")
     if selected_make:
         models = get_models_by_make(selected_make)
-        selected_model = st.selectbox("Model", ["Select a model..."] + models, key="model", label_visibility="collapsed")
-        if selected_model == "Select a model...":
+        selected_model = st.selectbox(
+            "Model",
+            [ALL_MODELS] + models,
+            key="model",
+            label_visibility="collapsed",
+        )
+        if selected_model == ALL_MODELS:
             selected_model = None
     else:
-        selected_model = st.selectbox("Model", ["Select brand first"], disabled=True, label_visibility="collapsed")
+        selected_model = st.selectbox("Model", [ALL_MODELS], disabled=True, label_visibility="collapsed")
 
-with col3:
-    st.markdown("### ⚙️ Variant")
+st.markdown("<div style='display: flex; justify-content: center; margin: 1.25rem 0 0.5rem;'>", unsafe_allow_html=True)
+col_left, col_center, col_right = st.columns([1, 2, 1])
+with col_center:
+    search_button = st.button(
+        "🔎 Search Variants",
+        type="primary",
+        disabled=not bool(budget_options),
+        use_container_width=True,
+    )
+st.markdown("</div>", unsafe_allow_html=True)
+
+if search_button:
+    with st.spinner("Searching variants near your budget..."):
+        candidates, search_meta = find_variants_by_budget(
+            budget_rupees=float(selected_budget),
+            pct=float(selected_margin),
+            make=selected_make,
+            model=selected_model,
+            k_min=2,
+            k_max=5,
+            expand_step_pct=5.0,
+            max_pct=50.0,
+        )
+        st.session_state["budget_candidates"] = candidates
+        st.session_state["budget_search_meta"] = search_meta
+        st.session_state["budget_search_params"] = {
+            "budget_rupees": float(selected_budget),
+            "pct": float(selected_margin),
+            "make": selected_make,
+            "model": selected_model,
+        }
+
+budget_candidates = st.session_state.get("budget_candidates") or []
+budget_search_meta = st.session_state.get("budget_search_meta") or {}
+
+if selected_make or selected_model:
     if selected_make and selected_model:
-        variants = get_variants_by_model(selected_make, selected_model)
-        variant_options = [f"{v['variant_name']} (₹{v['price']:,.0f})" for v in variants]
-        selected_variant_display = st.selectbox("Variant", ["Select a variant..."] + variant_options, key="variant", label_visibility="collapsed")
-        
-        # Extract just the variant name
-        if selected_variant_display and selected_variant_display != "Select a variant...":
-            selected_variant = selected_variant_display.split(" (₹")[0]
-        else:
-            selected_variant = None
+        st.info(f"Showing results only for {selected_make} {selected_model} because you selected it.")
+    elif selected_make:
+        st.info(f"Showing results only for {selected_make} because you selected it.")
+
+if budget_search_meta.get("expanded") or budget_search_meta.get("used_fallback"):
+    st.warning("No cars in selected range; showing nearest matches.")
+
+st.markdown("### ⚙️ Variant")
+if budget_candidates:
+    variant_options = [
+        f"{m.get('variant_name', '')} (₹{float(m.get('price', 0)):,.0f})" for m in budget_candidates
+    ]
+    selected_variant_display = st.selectbox(
+        "Variant",
+        ["Select a variant..."] + variant_options,
+        key="variant",
+        label_visibility="collapsed",
+    )
+    if selected_variant_display and selected_variant_display != "Select a variant...":
+        selected_variant = selected_variant_display.split(" (₹")[0]
     else:
-        selected_variant = st.selectbox("Variant", ["Select model first"], disabled=True, label_visibility="collapsed")
+        selected_variant = None
+else:
+    selected_variant = st.selectbox(
+        "Variant",
+        ["Click Search first"],
+        disabled=True,
+        label_visibility="collapsed",
+    )
+
+selected_variant_make = selected_make
+selected_variant_model = selected_model
+if selected_variant and budget_candidates:
+    for meta in budget_candidates:
+        if str(meta.get("variant_name")) == str(selected_variant):
+            selected_variant_make = meta.get("make")
+            selected_variant_model = meta.get("model")
+            break
 
 # Centered gradient button
 st.markdown("<div style='display: flex; justify-content: center; margin: 2rem 0;'>", unsafe_allow_html=True)
@@ -509,7 +643,7 @@ with col_center:
     show_button = st.button(
         "🚀 Discover Upgrade Options", 
         type="primary", 
-        disabled=not (selected_make and selected_model and selected_variant), 
+        disabled=not bool(selected_variant), 
         use_container_width=True
     )
 st.markdown("</div>", unsafe_allow_html=True)
@@ -519,13 +653,17 @@ st.divider()
 # Display results
 if show_button and selected_variant:
     # Get basic variant details immediately
-    selected = get_variant_details(selected_make, selected_model, selected_variant)
+    if not (selected_variant_make and selected_variant_model):
+        st.error("Unable to resolve the selected variant's make/model. Please run Search again.")
+        selected = None
+    else:
+        selected = get_variant_details(selected_variant_make, selected_variant_model, selected_variant)
     
     if not selected:
         st.error(f"Variant {selected_variant} not found")
     else:
         # Get upgrade options immediately
-        upgrades = find_upgrade_options(selected_make, selected_model, selected['tier_order'], limit=num_recommendations)
+        upgrades = find_upgrade_options(selected_variant_make, selected_variant_model, selected['tier_order'], limit=num_recommendations)
         
         # Calculate basic feature differences
         basic_upgrade_options = []

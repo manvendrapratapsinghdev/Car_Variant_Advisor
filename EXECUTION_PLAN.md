@@ -141,6 +141,26 @@
 
 ---
 
+### ✅ Story 2.4: Budget-Based Variant Search Query (Phase 3) (2 hours)
+**Objective**: Retrieve 2–5 candidate variants by budget (amount + margin%), with optional Make/Model constraints
+
+**Implementation Steps**:
+1. Add `get_price_range()` utility (min/max rupees) for UI budget dropdown
+2. Add `find_variants_by_budget(budget_rupees, pct, make=None, model=None, k_min=2, k_max=5)`
+3. Filter by Chroma metadata `price` within computed bounds
+4. Sort by nearest price to budget (stable ordering on ties)
+5. Deduplicate while filling using (make, model, variant_name)
+6. Auto-expand margin (+5% steps up to 50%) until k_min is met
+7. Fallback when empty: return nearest-lower + nearest-higher priced variants (within the same constraints)
+
+**Testing**:
+- Automated: Unit test selection/sorting/dedupe/expand/fallback logic without requiring a live Chroma DB (mock metadata lists)
+- Manual: In Streamlit, pick budgets at min/max and mid-range, verify 2–5 candidates appear and are closest in price
+
+**Completion Criteria**: [ ] Budget query returns 2–5 candidates with expand + fallback
+
+---
+
 ## 🤖 SPRINT 3: Agent Tools & Orchestration (Hours 14-22)
 
 ### ✅ Story 3.1: Tool 1 - Get Variant Details (1.5 hours)
@@ -257,21 +277,28 @@
 
 ## 🎨 SPRINT 4: Streamlit Frontend (Hours 23-34)
 
-### ✅ Story 4.1: Cascading Dropdowns (3 hours)
-**Objective**: Build Make → Model → Variant selection flow
+### ✅ Story 4.1: Budget-First Search + Optional Filters (Phase 3) (3 hours)
+**Objective**: Make budget (amount + margin%) the primary search, with optional Make/Model constraints
 
 **Implementation Steps**:
-1. Create Streamlit page with st.selectbox for Make
-2. On Make selection, populate Model dropdown using get_models_by_make()
-3. On Model selection, populate Variant dropdown using get_variants_by_model()
-4. Use st.session_state to maintain selections
-5. Add "Show Recommendations" button (disabled until all 3 selected)
+1. Add Budget dropdown (₹10,000 steps; show in lakhs with 2-decimal rounding; store rupees)
+2. Add Margin% dropdown (default 5%)
+3. Keep Make optional; show Model dropdown only if Make is selected (Model remains optional)
+4. Add a Search button that fetches candidate variants only on click
+5. Populate Variant dropdown from budget candidates (2–5 variants), formatted as `Variant (₹price)`
+6. Preserve existing downstream behavior (variant selection → upgrade options + feature extras comparison)
+7. Show a one-line disclaimer only when Make and/or Model is selected
+8. Show a one-line fallback message when expand/fallback is used: “No cars in selected range; showing nearest matches.”
 
 **Testing**:
-- Automated: N/A (UI testing)
-- Manual: Select Maruti → Swift → VXi, verify each dropdown updates correctly
+- Automated: Smoke test for helper formatting (lakhs label) and query integration
+- Manual:
+   - Open search (no make/model): budget search returns 2–5 nearest-priced candidates
+   - Make only: candidates constrained to make, disclaimer displayed
+   - Make+Model: candidates constrained to make+model, disclaimer displayed
+   - Small budget edge: triggers fallback message and still returns nearest matches
 
-**Completion Criteria**: [ ] All 3 dropdowns cascade properly
+**Completion Criteria**: [ ] Budget-first search returns 2–5 candidates and preserves existing comparison flow
 
 ---
 
