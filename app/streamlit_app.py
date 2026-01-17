@@ -562,7 +562,8 @@ with col5:
         if selected_model == ALL_MODELS:
             selected_model = None
     else:
-        selected_model = st.selectbox("Model", [ALL_MODELS], disabled=True, label_visibility="collapsed")
+        st.selectbox("Model", [ALL_MODELS], disabled=True, label_visibility="collapsed", key="model_disabled")
+        selected_model = None
 
 st.markdown("<div style='display: flex; justify-content: center; margin: 1.25rem 0 0.5rem;'>", unsafe_allow_html=True)
 col_left, col_center, col_right = st.columns([1, 2, 1])
