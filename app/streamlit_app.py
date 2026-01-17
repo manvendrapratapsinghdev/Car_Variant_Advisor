@@ -406,7 +406,7 @@ st.markdown("""
               font-size: 0.95rem; 
               margin: 0.3rem 0 0 3rem;
               font-family: 'Inter', sans-serif;">
-        Find the perfect variant upgrade for your budget with AI-powered insights
+        Find the perfect car variant within your budget with AI-powered insights
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -446,27 +446,27 @@ with st.sidebar:
    
 
 # Selection Panel with gradient card
-st.markdown("""
-<div style="background: linear-gradient(135deg, #7B68EE, #9370DB, #BA55D3); 
-            padding: 1rem; 
-            border-radius: 16px; 
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 16px rgba(123, 104, 238, 0.3);">
-    <h3 style="color: white; 
-               margin: 0 0 0 0; 
-               font-family: 'Poppins', sans-serif;
-               font-size: 1.8rem;
-               font-weight: 600;">
-        🎯 Search by Budget
-    </h3>
-    <p style="color: rgba(255, 255, 255, 0.9); 
-              font-size: 1rem; 
-              margin: 0 0 1rem 0;
-              font-family: 'Inter', sans-serif;">
-        Pick a budget and optionally narrow by brand/model
-    </p>
-</div>
-""", unsafe_allow_html=True)
+# st.markdown("""
+# <div style="background: linear-gradient(135deg, #7B68EE, #9370DB, #BA55D3); 
+#             padding: 1rem; 
+#             border-radius: 16px; 
+#             margin-bottom: 1rem;
+#             box-shadow: 0 4px 16px rgba(123, 104, 238, 0.3);">
+#     <h3 style="color: white; 
+#                margin: 0 0 0 0; 
+#                font-family: 'Poppins', sans-serif;
+#                font-size: 1.8rem;
+#                font-weight: 600;">
+#         🎯 Search by Budget
+#     </h3>
+#     <p style="color: rgba(255, 255, 255, 0.9); 
+#               font-size: 1rem; 
+#               margin: 0 0 1rem 0;
+#               font-family: 'Inter', sans-serif;">
+#         Pick a budget and optionally narrow by brand/model
+#     </p>
+# </div>
+# """, unsafe_allow_html=True)
 
 
 @st.cache_data(show_spinner=False)
@@ -497,7 +497,7 @@ ALL_MODELS = "All models"
 budget_options = _build_budget_options()
 
 # Row 1: Budget and Margin
-st.markdown("#### 💰 Budget Settings")
+st.markdown("#### 💰 Budget ")
 row1_col1, row1_col2 = st.columns([3, 1])
 
 with row1_col1:
@@ -516,7 +516,7 @@ with row1_col1:
         selected_budget = st.selectbox("Budget", ["No price data"], disabled=True, label_visibility="collapsed")
 
 with row1_col2:
-    st.markdown("**Margin**")
+    st.markdown("**Margin budget**")
     margin_options = [5, 10, 15, 20, 25, 30, 40, 50]
     selected_margin = st.selectbox(
         "Margin",
@@ -532,7 +532,7 @@ st.markdown("<p style='font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;'>�
 row2_col1, row2_col2, row2_col3 = st.columns(3)
 
 with row2_col1:
-    st.markdown("**🔢 Count**")
+    st.markdown("**🔢 Number of suggestions**")
     count_options = [2, 3, 4, 5]
     selected_count = st.selectbox(
         "Count",
@@ -650,7 +650,6 @@ if budget_candidates:
             "Brand": meta.get("make", ""),
             "Model": meta.get("model", ""),
             "Variant": meta.get("variant_name", ""),
-            "Price": f"₹{float(meta.get('price', 0)):,.0f}",
             "Price (Lakhs)": f"₹{float(meta.get('price', 0))/100000:.2f} L",
             "Tier": str(meta.get("tier_name", "")).title(),
             "Fuel": meta.get("fuel_type", ""),
@@ -665,10 +664,9 @@ if budget_candidates:
         hide_index=True,
         column_config={
             "#": st.column_config.NumberColumn("#", width="small"),
-            "Brand": st.column_config.TextColumn("Brand", width="medium"),
-            "Model": st.column_config.TextColumn("Model", width="medium"),
-            "Variant": st.column_config.TextColumn("Variant", width="large"),
-            "Price": st.column_config.TextColumn("Price", width="medium"),
+            "Brand": st.column_config.TextColumn("Brand", width="small"),
+            "Model": st.column_config.TextColumn("Model", width="small"),
+            "Variant": st.column_config.TextColumn("Variant", width="medium"),
             "Price (Lakhs)": st.column_config.TextColumn("Price (Lakhs)", width="small"),
             "Tier": st.column_config.TextColumn("Tier", width="small"),
             "Fuel": st.column_config.TextColumn("Fuel", width="small"),
@@ -800,9 +798,13 @@ Keep the response concise and helpful."""
             result = engine.get_budget_recommendation(budget_candidates, budget_search_params)
             if result and result.get('status') == 'success' and result.get('recommendation'):
                 st.success("✅ AI Analysis Complete!")
+                # Display recommendation in styled info box
                 st.info(result['recommendation'])
                 st.caption("*️⃣ Note: This is an AI recommendation based on value analysis. Final decision should be yours based on your specific needs and preferences.")
             else:
+                # Show error message if available
+                error_msg = result.get('message', 'Unknown error') if result else 'No response'
+                st.warning(f"AI analysis returned: {error_msg}")
                 # Fallback to simple recommendation
                 if len(budget_candidates) > 0:
                     cheapest = min(budget_candidates, key=lambda x: float(x.get('price', float('inf'))))
