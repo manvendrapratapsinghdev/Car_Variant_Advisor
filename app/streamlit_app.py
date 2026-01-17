@@ -496,12 +496,40 @@ ALL_MODELS = "All models"
 
 budget_options = _build_budget_options()
 
+# Text search option
+st.markdown("#### 🔍 Text based search")
+
+st.markdown("<p style='font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;'>Describe what you're looking for - features, preferences, or requirements</p>", unsafe_allow_html=True)
+search_query = st.text_area(
+    "Search",
+    placeholder="e.g., I want a car with sunroof, automatic transmission, good mileage, diesel engine, 7 seater for family trips...",
+    key="feature_search",
+    label_visibility="collapsed",
+    height=80,
+)
+
+
+
+st.markdown("<div style='display: flex; justify-content: center; margin: 1.25rem 0 0.5rem;'>", unsafe_allow_html=True)
+col_left, col_center, col_right = st.columns([1, 2, 1])
+with col_center:
+    search_button = st.button(
+        "🔎 Search Cars",
+        type="secondary",
+        disabled=not bool(budget_options),
+        use_container_width=True,
+    )
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("<p style='text-align: center; color: #9C27B0; font-weight: 600; font-size: 1.2rem; margin: 1rem 0;'>— OR —</p>", unsafe_allow_html=True)
+
+
 # Row 1: Budget and Margin
-st.markdown("#### 💰 Budget ")
+st.markdown("#### Selection based search ")
 row1_col1, row1_col2 = st.columns([3, 1])
 
 with row1_col1:
-    st.markdown("**Budget**")
+    st.markdown("**💰 Budget**")
     if budget_options:
         default_idx = _closest_index(budget_options, 600_000)
         selected_budget = st.selectbox(
@@ -575,7 +603,7 @@ st.markdown("<div style='display: flex; justify-content: center; margin: 1.25rem
 col_left, col_center, col_right = st.columns([1, 2, 1])
 with col_center:
     search_button = st.button(
-        "🔎 Search Variants",
+        "🔎 Search Cars",
         type="primary",
         disabled=not bool(budget_options),
         use_container_width=True,
