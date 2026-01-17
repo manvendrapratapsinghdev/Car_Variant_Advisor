@@ -29,6 +29,7 @@ from src.database.queries import (
     find_upgrade_options,
     get_price_range,
     find_variants_by_budget,
+    search_variants_by_budget,
 )
 from src.agent.simple_recommender import SimpleRecommendationEngine
 from src.agent.nlg_engine import NLGEngine
@@ -424,21 +425,12 @@ with st.sidebar:
     st.markdown("### 🎯 How it works")
     st.markdown("""
     <ol style='font-size: 0.95rem; padding-left: 0.6rem;'>
-    <li>Select your budget (amount + margin)</li>
+    <li>Select your budget (amount + margin + count)</li>
     <li>(Optional) Narrow results by brand and model</li>
-    <li>Select a variant to see upgrade options</li>
+    <li>Click Search to see matching variants</li>
     </ol>
     """, unsafe_allow_html=True)
     st.divider()
-    st.markdown("### 🎯 Recommendation Settings")
-    num_recommendations = st.slider(
-        "Number of upgrades",
-        min_value=2,
-        max_value=3,
-        value=3,
-        help="Choose how many upgrade options you'd like to see (based on availability)"
-    )
-
     st.markdown("### 📊 Statistics")
     makes_count = len(get_all_makes())
     st.metric("Total Makes", makes_count)
@@ -504,7 +496,7 @@ ALL_MODELS = "All models"
 
 budget_options = _build_budget_options()
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
     st.markdown("### 💰 Budget")
@@ -527,13 +519,25 @@ with col2:
     selected_margin = st.selectbox(
         "Margin",
         margin_options,
-        index=0,
+        index=1,  # Default 10%
         format_func=lambda x: f"{x}%",
         key="budget_margin_pct",
         label_visibility="collapsed",
     )
 
 with col3:
+    st.markdown("### 🔢 Count")
+    count_options = [2, 3, 4, 5]
+    selected_count = st.selectbox(
+        "Count",
+        count_options,
+        index=1,  # Default 3
+        format_func=lambda x: f"{x} results",
+        key="result_count",
+        label_visibility="collapsed",
+    )
+
+with col4:
     st.markdown("### 🏢 Brand")
     makes = get_all_makes()
     selected_make = st.selectbox(
@@ -545,7 +549,7 @@ with col3:
     if selected_make == ALL_BRANDS:
         selected_make = None
 
-with col4:
+with col5:
     st.markdown("### 🚗 Model")
     if selected_make:
         models = get_models_by_make(selected_make)
@@ -573,22 +577,20 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 if search_button:
     with st.spinner("Searching variants near your budget..."):
-        candidates, search_meta = find_variants_by_budget(
+        candidates, search_meta = search_variants_by_budget(
             budget_rupees=float(selected_budget),
-            pct=float(selected_margin),
-            make=selected_make,
+            margin_pct=float(selected_margin),
+            count=int(selected_count),
+            brand=selected_make,
             model=selected_model,
-            k_min=2,
-            k_max=5,
-            expand_step_pct=5.0,
-            max_pct=50.0,
         )
         st.session_state["budget_candidates"] = candidates
         st.session_state["budget_search_meta"] = search_meta
         st.session_state["budget_search_params"] = {
             "budget_rupees": float(selected_budget),
-            "pct": float(selected_margin),
-            "make": selected_make,
+            "margin_pct": float(selected_margin),
+            "count": int(selected_count),
+            "brand": selected_make,
             "model": selected_model,
         }
 
@@ -596,296 +598,109 @@ budget_candidates = st.session_state.get("budget_candidates") or []
 budget_search_meta = st.session_state.get("budget_search_meta") or {}
 budget_search_params = st.session_state.get("budget_search_params") or {}
 
+# Show filter info
 if selected_make or selected_model:
     if selected_make and selected_model:
         st.info(f"Showing results only for {selected_make} {selected_model} because you selected it.")
     elif selected_make:
         st.info(f"Showing results only for {selected_make} because you selected it.")
 
-if budget_search_meta.get("used_fallback"):
-    st.warning("No cars in selected range; showing nearest matches.")
-elif budget_search_meta.get("expanded"):
-    effective_pct = budget_search_meta.get("effective_pct")
-    requested_pct = budget_search_params.get("pct")
-    try:
-        if effective_pct is not None and requested_pct is not None and float(effective_pct) > float(requested_pct):
-            st.info(f"Expanded margin to {float(effective_pct):.0f}% to find enough matches.")
-    except (TypeError, ValueError):
-        pass
+# Show search range info
+if budget_search_meta.get("searched_lower") and not budget_search_meta.get("no_results"):
+    st.info("Extended search to below-budget range to find more matches.")
 
-st.markdown("### ⚙️ Variant")
-if budget_candidates:
-    variant_options = [
-        f"{m.get('variant_name', '')} (₹{float(m.get('price', 0)):,.0f})" for m in budget_candidates
-    ]
-    selected_variant_display = st.selectbox(
-        "Variant",
-        ["Select a variant..."] + variant_options,
-        key="variant",
-        label_visibility="collapsed",
-    )
-    if selected_variant_display and selected_variant_display != "Select a variant...":
-        selected_variant = selected_variant_display.split(" (₹")[0]
-    else:
-        selected_variant = None
-else:
-    selected_variant = st.selectbox(
-        "Variant",
-        ["Click Search first"],
-        disabled=True,
-        label_visibility="collapsed",
-    )
-
-selected_variant_make = selected_make
-selected_variant_model = selected_model
-if selected_variant and budget_candidates:
-    for meta in budget_candidates:
-        if str(meta.get("variant_name")) == str(selected_variant):
-            selected_variant_make = meta.get("make")
-            selected_variant_model = meta.get("model")
-            break
-
-# Centered gradient button
-st.markdown("<div style='display: flex; justify-content: center; margin: 2rem 0;'>", unsafe_allow_html=True)
-col_left, col_center, col_right = st.columns([1, 2, 1])
-with col_center:
-    show_button = st.button(
-        "🚀 Discover Upgrade Options", 
-        type="primary", 
-        disabled=not bool(selected_variant), 
-        use_container_width=True
-    )
-st.markdown("</div>", unsafe_allow_html=True)
+if budget_search_meta.get("no_results"):
+    st.warning("No cars found in your budget range. Try adjusting your budget or margin.")
 
 st.divider()
 
-# Display results
-if show_button and selected_variant:
-    # Get basic variant details immediately
-    if not (selected_variant_make and selected_variant_model):
-        st.error("Unable to resolve the selected variant's make/model. Please run Search again.")
-        selected = None
-    else:
-        selected = get_variant_details(selected_variant_make, selected_variant_model, selected_variant)
+# Display Search Results as Comparison Table
+if budget_candidates:
+    st.markdown(f"### 🚗 Search Results ({len(budget_candidates)} variants found)")
     
-    if not selected:
-        st.error(f"Variant {selected_variant} not found")
-    else:
-        # Get upgrade options immediately
-        upgrades = find_upgrade_options(selected_variant_make, selected_variant_model, selected['tier_order'], limit=num_recommendations)
+    # Build comparison table data
+    import pandas as pd
+    
+    table_data = []
+    for i, meta in enumerate(budget_candidates, 1):
+        table_data.append({
+            "#": i,
+            "Brand": meta.get("make", ""),
+            "Model": meta.get("model", ""),
+            "Variant": meta.get("variant_name", ""),
+            "Price": f"₹{float(meta.get('price', 0)):,.0f}",
+            "Price (Lakhs)": f"₹{float(meta.get('price', 0))/100000:.2f} L",
+            "Tier": str(meta.get("tier_name", "")).title(),
+        })
+    
+    df = pd.DataFrame(table_data)
+    
+    st.dataframe(
+        df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "#": st.column_config.NumberColumn("#", width="small"),
+            "Brand": st.column_config.TextColumn("Brand", width="medium"),
+            "Model": st.column_config.TextColumn("Model", width="medium"),
+            "Variant": st.column_config.TextColumn("Variant", width="large"),
+            "Price": st.column_config.TextColumn("Price", width="medium"),
+            "Price (Lakhs)": st.column_config.TextColumn("Price (Lakhs)", width="small"),
+            "Tier": st.column_config.TextColumn("Tier", width="small"),
+        }
+    )
+    
+    st.divider()
+    
+    # AI Recommendation
+    st.markdown("### 🤖 AI-Powered Recommendation")
+    
+    with st.spinner("🤖 AI is analyzing these variants for you..."):
+        # Build context for AI
+        variants_text = "\n".join([
+            f"- {m.get('make')} {m.get('model')} {m.get('variant_name')} at ₹{float(m.get('price', 0)):,.0f} ({m.get('tier_name', '').title()} tier)"
+            for m in budget_candidates
+        ])
+        budget_lakhs = float(budget_search_params.get('budget_rupees', 0)) / 100000
         
-        # Calculate basic feature differences
-        basic_upgrade_options = []
-        for upgrade in upgrades:
-            diff = SimpleRecommendationEngine.calculate_feature_difference(selected, upgrade)
-            basic_upgrade_options.append({
-                'variant': upgrade,
-                'price_difference': diff['price_difference'],
-                'additional_features': diff['additional_features'],
-                'total_new_features': diff['total_new_features'],
-                'cost_per_feature': diff['cost_per_feature'],
-                'value_assessment': diff['cost_per_feature'] < 5000 and "Excellent value!" or diff['cost_per_feature'] < 10000 and "Good value" or "Premium upgrade"
-            })
+        prompt = f"""Given these car variants within budget ₹{budget_lakhs:.2f} Lakhs (±{budget_search_params.get('margin_pct', 10)}%):
+
+{variants_text}
+
+Please provide:
+1. A brief comparison of these variants
+2. Your recommendation for the best value option
+3. Key factors to consider when choosing between them
+
+Keep the response concise and helpful."""
         
-        # Display selected variant instantly with card styling
-        # st.markdown('<div class="selection-card">', unsafe_allow_html=True)
-        st.markdown(f"## 🚗 Your Selection: {selected['variant_name']}")
-        
-        col_price, col_tier = st.columns([3, 1])
-        
-        with col_price:
-            st.metric("Ex-showroom Price", f"₹{selected['price']:,.0f}")
-        
-        with col_tier:
-            st.metric("Tier", selected['tier_name'].title())
-        
-        # Features in expanders (only show non-empty sections)
-        if selected['features']['safety']:
-            with st.expander("🛡️ Safety Features"):
-                for feat in selected['features']['safety']:
-                    st.markdown(f"✓ {feat}")
-        
-        if selected['features']['comfort']:
-            with st.expander("🛋️ Comfort Features"):
-                for feat in selected['features']['comfort']:
-                    st.markdown(f"✓ {feat}")
-        
-        if selected['features']['technology']:
-            with st.expander("📱 Technology Features"):
-                for feat in selected['features']['technology']:
-                    st.markdown(f"✓ {feat}")
-        
-        if selected['features']['exterior']:
-            with st.expander("🎨 Exterior Features"):
-                for feat in selected['features']['exterior']:
-                    st.markdown(f"✓ {feat}")
-        
-        if selected['features']['convenience']:
-            with st.expander("🔧 Convenience Features"):
-                for feat in selected['features']['convenience']:
-                    st.markdown(f"✓ {feat}")
-        
-        st.divider()
-        
-        # Show basic upgrade options instantly
-        if upgrades:
-            st.markdown("### 📊 Upgrade Options")
-            
-            for i, opt in enumerate(basic_upgrade_options, 1):
-                upgrade = opt['variant']
-                
-                st.markdown(f"### Option {i}: {upgrade['variant_name']}")
-                
-                # Show price and tier without boxes
-                col_price, col_tier = st.columns([3, 1])
-                
-                with col_price:
-                    st.markdown(f"**Ex-showroom Price:** ₹{upgrade['price']:,.0f}")
-                
-                with col_tier:
-                    st.markdown(f"**Tier:** {upgrade['tier_name'].title()}")
-                
-                # Show important metrics with boxes
-                col_features, col_upgrade = st.columns([1, 1])
-                
-                with col_features:
-                    st.metric("Extra Features", opt['total_new_features'])
-                
-                with col_upgrade:
-                    st.metric("Upgrade with", f"+₹{opt['price_difference']:,.0f}")
-                
-                # Show cost per feature as normal text below the cards
-                if opt['total_new_features'] > 0:
-                    st.markdown(f"**Cost per Feature:** ₹{opt['cost_per_feature']:,.0f}")
-                    st.caption(opt['value_assessment'])
-                else:
-                    st.caption("Similar features")
-                
-                # Show additional features in category-wise expanders
-                if opt['total_new_features'] > 0:
-                    st.markdown("**What You Get:**")
-                    
-                    # Safety Features
-                    if opt['additional_features'].get('safety'):
-                        with st.expander("🛡️ Safety Features"):
-                            for feat in opt['additional_features']['safety']:
-                                st.markdown(f"✓ {feat}")
-                    
-                    # Comfort Features
-                    if opt['additional_features'].get('comfort'):
-                        with st.expander("🛋️ Comfort Features"):
-                            for feat in opt['additional_features']['comfort']:
-                                st.markdown(f"✓ {feat}")
-                    
-                    # Technology Features
-                    if opt['additional_features'].get('technology'):
-                        with st.expander("📱 Technology Features"):
-                            for feat in opt['additional_features']['technology']:
-                                st.markdown(f"✓ {feat}")
-                    
-                    # Exterior Features
-                    if opt['additional_features'].get('exterior'):
-                        with st.expander("🎨 Exterior Features"):
-                            for feat in opt['additional_features']['exterior']:
-                                st.markdown(f"✓ {feat}")
-                    
-                    # Convenience Features
-                    if opt['additional_features'].get('convenience'):
-                        with st.expander("🔧 Convenience Features"):
-                            for feat in opt['additional_features']['convenience']:
-                                st.markdown(f"✓ {feat}")
-                
-                st.divider()
-            
-            # Feature Comparison Matrix
-            st.markdown("### 🔍 Feature Comparison: What's New in Each Upgrade")
-            st.caption("**CURRENT** = Your selected variant | **+₹Price** = Upgrade cost from current variant")
-            
-            comparison_matrix = build_feature_comparison_matrix(selected, basic_upgrade_options)
-            
-            # Display with custom styling and configuration
-            st.dataframe(
-                comparison_matrix,
-                use_container_width=True,
-                hide_index=True,
-                height=min(len(comparison_matrix) * 35 + 38, 600),  # Dynamic height, max 600px
-                column_config={
-                    "Feature": st.column_config.TextColumn(
-                        "Feature",
-                        width="medium",
-                    )
-                }
-            )
-            
-            st.divider()
-        
-        # Now show AI analysis with loading spinner
-        st.markdown("### 🤖 AI-Powered Comparative Analysis")
-        
-        with st.spinner("🤖 AI is analyzing the upgrade options for you..."):
-            # Call Gemini AI for detailed analysis
-            result = engine.get_recommendations(selected_make, selected_model, selected_variant, num_recommendations)
-        
-        # Show AI analysis results
-        if result and isinstance(result, dict) and result.get('status') == 'success' and result.get('ai_recommendation'):
-            st.success("✅ AI Analysis Complete!")
-            st.info(result['ai_recommendation'])
-            st.caption("*️⃣ Note: Scores are AI recommendations based on value analysis. Final decision should be yours based on your specific needs and preferences.")
-            
-            st.divider()
-            
-            # Feature vs Price Chart - after AI recommendation with AI coloring
-            st.markdown("### 📈 Visual Analysis: Features vs Price")
-            st.caption("See how features correlate with price across variants | 🟡 Selected | 🟢 AI Recommended | ⚪ Other Options")
-            
-            # Extract AI recommended variant (highest score or first in sorted list)
-            ai_recommended_variant = result['upgrade_options'][0]['variant']['variant_name'] if result.get('upgrade_options') else None
-            
-            price_chart = generate_feature_price_chart(selected, basic_upgrade_options, ai_recommended_variant)
-            st.plotly_chart(price_chart, use_container_width=True)
-            
-            st.divider()
-            
-            # Add text-to-speech for AI recommendation
-            st.markdown("#### 🎙️ Listen to AI Analysis")
-            
-            # Generate audio with loading indicator
-            with st.spinner("🎵 Generating audio..."):
-                audio_file = voice_assistant.speak_recommendations(
-                    result['ai_recommendation'],
-                    voice="female" if voice_gender == "Female" else "male"
-                )
-            
-            if audio_file and os.path.exists(audio_file):
-                # Read and encode audio file
-                with open(audio_file, "rb") as f:
-                    audio_bytes = f.read()
-                
-                # Display audio player
-                st.audio(audio_bytes, format="audio/mp3")
-                st.caption("🔊 Click play to hear the AI analysis")
+        # Call AI engine for recommendation
+        try:
+            result = engine.get_budget_recommendation(budget_candidates, budget_search_params)
+            if result and result.get('status') == 'success' and result.get('recommendation'):
+                st.success("✅ AI Analysis Complete!")
+                st.info(result['recommendation'])
+                st.caption("*️⃣ Note: This is an AI recommendation based on value analysis. Final decision should be yours based on your specific needs and preferences.")
             else:
-                st.warning("Audio generation unavailable")
-            
-            # Show agent workflow
-            with st.expander("🔍 Agent Workflow", expanded=False):
-                for step in result.get('trace', []):
-                    st.markdown(step)
-        else:
-            # Show detailed error information
-            if result and isinstance(result, dict) and result.get('status') == 'error':
-                st.error(f"{result.get('message', 'Unknown error')}")
-                
-                # Show trace if available
-                if result.get('trace'):
-                    with st.expander("🔍 Error Details"):
-                        for step in result['trace']:
-                            st.markdown(step)
-            elif result and isinstance(result, dict) and result.get('upgrade_options'):
-                st.warning("⚠️ Upgrade options shown above. AI analysis unavailable.")
-                st.caption(f"Reason: {result.get('message', 'No AI recommendation returned')}")
-            else:
-                st.error("⚠️ Unable to process your request. Please try again.")
+                # Fallback to simple recommendation
+                if len(budget_candidates) > 0:
+                    cheapest = min(budget_candidates, key=lambda x: float(x.get('price', float('inf'))))
+                    st.info(f"💡 **Quick Tip:** The {cheapest.get('make')} {cheapest.get('model')} {cheapest.get('variant_name')} offers the lowest price at ₹{float(cheapest.get('price', 0)):,.0f}.")
+                    st.caption("AI detailed analysis unavailable. Showing basic recommendation.")
+        except Exception as e:
+            st.warning(f"AI recommendation unavailable: {str(e)}")
+            # Fallback to simple recommendation
+            if len(budget_candidates) > 0:
+                cheapest = min(budget_candidates, key=lambda x: float(x.get('price', float('inf'))))
+                st.info(f"💡 **Quick Tip:** The {cheapest.get('make')} {cheapest.get('model')} {cheapest.get('variant_name')} offers the lowest price at ₹{float(cheapest.get('price', 0)):,.0f}.")
+
+elif budget_search_meta.get("no_results"):
+    st.markdown("### No Results")
+    st.info("Try adjusting your budget, increasing the margin, or removing brand/model filters.")
+elif not st.session_state.get("budget_candidates"):
+    st.markdown("### 🎯 Getting Started")
+    st.info("Select your budget and click **Search Variants** to find matching cars.")
+
 st.markdown(
     """
     <div style='text-align: center; color: gray;'>
@@ -894,6 +709,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 # Update sidebar statistics dynamically
 with st.sidebar:
     if selected_make:

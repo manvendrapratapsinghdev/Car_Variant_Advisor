@@ -379,6 +379,72 @@ class VariantQueries:
 
         return picked
 
+    def search_variants_by_budget(
+        self,
+        budget_rupees: float,
+        margin_pct: float,
+        count: int,
+        brand: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """Budget-only variant search (Phase 3 Revised).
+
+        Search Logic:
+        1. First search [budget, budget + margin] (upper range)
+        2. If fewer than count results, also search [budget - margin, budget] (lower range)
+        3. If still no results, return empty with 'no_results' flag
+
+        Args:
+            budget_rupees: Target budget in rupees
+            margin_pct: Margin percentage (default 10%)
+            count: Number of results to return (2-5, default 3)
+            brand: Optional brand filter (narrows results)
+            model: Optional model filter (narrows results, only with brand)
+
+        Returns:
+            (candidates, meta)
+            meta includes: searched_upper (bool), searched_lower (bool), no_results (bool)
+        """
+        if budget_rupees is None or not isinstance(budget_rupees, (int, float)):
+            return [], {"searched_upper": False, "searched_lower": False, "no_results": True}
+
+        budget = float(budget_rupees)
+        margin_pct = float(max(0.0, margin_pct))
+        count = int(max(2, min(5, count)))
+        delta = (margin_pct / 100.0) * budget
+
+        meta_info = {"searched_upper": True, "searched_lower": False, "no_results": False}
+
+        # Step 1: Search upper range [budget, budget + margin]
+        upper_min = budget
+        upper_max = budget + delta
+        upper_candidates = self._get_metadatas_in_price_range(upper_min, upper_max, make=brand, model=model)
+        selected = self._select_candidates_from_metadatas(upper_candidates, budget, k_max=count)
+
+        # Step 2: If fewer than count, also search lower range [budget - margin, budget)
+        if len(selected) < count:
+            meta_info["searched_lower"] = True
+            lower_min = budget - delta
+            lower_max = budget  # exclusive boundary conceptually, but inclusive in query
+            lower_candidates = self._get_metadatas_in_price_range(lower_min, lower_max, make=brand, model=model)
+            
+            # Exclude already-selected variants
+            seen_keys = {self._dedupe_key(m) for m in selected}
+            additional = [m for m in lower_candidates if self._dedupe_key(m) not in seen_keys]
+            
+            # Sort and fill up to count
+            additional_sorted = self._select_candidates_from_metadatas(additional, budget, k_max=count - len(selected))
+            selected.extend(additional_sorted)
+
+        # Step 3: If still empty, mark no_results
+        if not selected:
+            meta_info["no_results"] = True
+
+        # Final sort by price (ascending for comparison table)
+        selected.sort(key=lambda m: float(m.get('price', 0)))
+
+        return selected, meta_info
+
     @staticmethod
     def _sorted_by_distance(metadatas: List[Dict[str, Any]], budget_rupees: float) -> List[Dict[str, Any]]:
         indexed = list(enumerate(metadatas))
@@ -471,6 +537,41 @@ def find_variants_by_budget(
         k_max=k_max,
         expand_step_pct=expand_step_pct,
         max_pct=max_pct,
+    )
+
+
+def search_variants_by_budget(
+    budget_rupees: float,
+    margin_pct: float,
+    count: int,
+    brand: Optional[str] = None,
+    model: Optional[str] = None,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Module-level wrapper for budget-only variant search (Phase 3 Revised).
+
+    Search Logic:
+    1. First search [budget, budget + margin] (upper range)
+    2. If fewer than count results, also search [budget - margin, budget] (lower range)
+    3. If still no results, return empty list
+
+    Args:
+        budget_rupees: Target budget in rupees
+        margin_pct: Margin percentage (default 10%)
+        count: Number of results to return (2-5, default 3)
+        brand: Optional brand filter
+        model: Optional model filter
+
+    Returns:
+        (candidates, meta)
+    """
+    if not _queries:
+        init_queries()
+    return _queries.search_variants_by_budget(
+        budget_rupees=budget_rupees,
+        margin_pct=margin_pct,
+        count=count,
+        brand=brand,
+        model=model,
     )
 
 

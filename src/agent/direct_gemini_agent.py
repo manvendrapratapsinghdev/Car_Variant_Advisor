@@ -307,6 +307,84 @@ The **[Best Variant Name]** offers the BEST value for money. [Explain why this i
         
         return scores
 
+    def get_budget_recommendation(self, candidates: List[Dict], search_params: Dict) -> Dict:
+        """Get AI-powered recommendation for budget search results.
+        
+        Args:
+            candidates: List of variant metadata dicts from search
+            search_params: Dict with budget_rupees, margin_pct, count, brand, model
+            
+        Returns:
+            Dict with status, recommendation text, and trace
+        """
+        self.trace = []
+        
+        if not candidates:
+            return {
+                'status': 'error',
+                'message': 'No candidates provided for recommendation',
+                'trace': self.trace
+            }
+        
+        try:
+            self.trace.append("🤖 Analyzing budget search results with AI...")
+            
+            # Build context
+            budget_rupees = search_params.get('budget_rupees', 0)
+            budget_lakhs = float(budget_rupees) / 100_000
+            margin_pct = search_params.get('margin_pct', 10)
+            
+            variants_text = []
+            for i, meta in enumerate(candidates, 1):
+                price = float(meta.get('price', 0))
+                price_lakhs = price / 100_000
+                diff_from_budget = price - budget_rupees
+                diff_text = f"+₹{diff_from_budget:,.0f}" if diff_from_budget >= 0 else f"-₹{abs(diff_from_budget):,.0f}"
+                
+                variants_text.append(
+                    f"{i}. {meta.get('make', '')} {meta.get('model', '')} {meta.get('variant_name', '')} "
+                    f"at ₹{price:,.0f} ({price_lakhs:.2f}L) [{meta.get('tier_name', '').title()} tier] ({diff_text} from budget)"
+                )
+            
+            prompt = f"""You are an expert car buying advisor. A customer is looking for cars within their budget.
+
+**Customer's Budget:** ₹{budget_lakhs:.2f} Lakhs (±{margin_pct}% margin)
+{f"**Preferred Brand:** {search_params.get('brand', 'Any')}" if search_params.get('brand') else "**Brand:** Open to all brands"}
+{f"**Preferred Model:** {search_params.get('model', 'Any')}" if search_params.get('model') else ""}
+
+**Available Options:**
+{chr(10).join(variants_text)}
+
+Please provide a brief but helpful recommendation that includes:
+1. A quick comparison of the options (1-2 sentences per option highlighting key differences)
+2. Your TOP PICK for best value within their budget with reasoning
+3. Any important considerations for the customer
+
+Keep your response concise (under 300 words) and focus on practical advice."""
+
+            model = genai.GenerativeModel(self.model)
+            response = model.generate_content(prompt)
+            
+            recommendation = response.text
+            if not recommendation or recommendation.strip() == "":
+                recommendation = "AI recommendation is currently unavailable."
+            
+            self.trace.append("✅ AI analysis complete!")
+            
+            return {
+                'status': 'success',
+                'recommendation': recommendation,
+                'trace': self.trace
+            }
+            
+        except Exception as e:
+            self.trace.append(f"❌ Error: {str(e)}")
+            return {
+                'status': 'error',
+                'message': str(e),
+                'trace': self.trace
+            }
+
 
 if __name__ == "__main__":
     # Test

@@ -122,6 +122,84 @@ class BudgetSearchTests(unittest.TestCase):
         self.assertIn("LOW", names)
         self.assertIn("HIGH", names)
 
+    def test_search_variants_by_budget_upper_only(self):
+        """Test search returns upper range results when sufficient."""
+        metas = [
+            {"make": "A", "model": "M", "variant_name": "V1", "price": 85},   # Below lower range
+            {"make": "A", "model": "M", "variant_name": "V2", "price": 105},  # In upper range
+            {"make": "A", "model": "M", "variant_name": "V3", "price": 108},  # In upper range
+            {"make": "A", "model": "M", "variant_name": "V4", "price": 115},  # Above upper range
+        ]
+        q = _FakeVariantQueries(metas)
+        candidates, meta = q.search_variants_by_budget(
+            budget_rupees=100,
+            margin_pct=10,  # Upper = 100-110
+            count=2,
+        )
+        self.assertTrue(meta["searched_upper"])
+        self.assertFalse(meta["searched_lower"])
+        self.assertFalse(meta["no_results"])
+        self.assertEqual(len(candidates), 2)
+        names = [c["variant_name"] for c in candidates]
+        self.assertIn("V2", names)
+        self.assertIn("V3", names)
+
+    def test_search_variants_by_budget_extends_to_lower(self):
+        """Test search extends to lower range when upper has insufficient results."""
+        metas = [
+            {"make": "A", "model": "M", "variant_name": "V1", "price": 95},   # In lower range
+            {"make": "A", "model": "M", "variant_name": "V2", "price": 105},  # In upper range
+            {"make": "A", "model": "M", "variant_name": "V3", "price": 115},  # Above range
+        ]
+        q = _FakeVariantQueries(metas)
+        candidates, meta = q.search_variants_by_budget(
+            budget_rupees=100,
+            margin_pct=10,  # Upper = 100-110, Lower = 90-100
+            count=3,
+        )
+        self.assertTrue(meta["searched_upper"])
+        self.assertTrue(meta["searched_lower"])
+        self.assertFalse(meta["no_results"])
+        self.assertEqual(len(candidates), 2)  # Only V1 and V2 are in range
+        names = [c["variant_name"] for c in candidates]
+        self.assertIn("V1", names)
+        self.assertIn("V2", names)
+
+    def test_search_variants_by_budget_no_results(self):
+        """Test search returns no_results when nothing is in range."""
+        metas = [
+            {"make": "A", "model": "M", "variant_name": "V1", "price": 50},   # Way below
+            {"make": "A", "model": "M", "variant_name": "V2", "price": 200},  # Way above
+        ]
+        q = _FakeVariantQueries(metas)
+        candidates, meta = q.search_variants_by_budget(
+            budget_rupees=100,
+            margin_pct=10,  # Range = 90-110, nothing there
+            count=3,
+        )
+        self.assertTrue(meta["searched_upper"])
+        self.assertTrue(meta["searched_lower"])
+        self.assertTrue(meta["no_results"])
+        self.assertEqual(len(candidates), 0)
+
+    def test_search_variants_by_budget_with_brand_filter(self):
+        """Test search correctly filters by brand."""
+        metas = [
+            {"make": "Maruti", "model": "Swift", "variant_name": "V1", "price": 105},
+            {"make": "Toyota", "model": "Etios", "variant_name": "V2", "price": 106},
+            {"make": "Maruti", "model": "Alto", "variant_name": "V3", "price": 107},
+        ]
+        q = _FakeVariantQueries(metas)
+        candidates, meta = q.search_variants_by_budget(
+            budget_rupees=100,
+            margin_pct=10,
+            count=3,
+            brand="Maruti",
+        )
+        self.assertEqual(len(candidates), 2)
+        for c in candidates:
+            self.assertEqual(c["make"], "Maruti")
+
 
 if __name__ == "__main__":
     unittest.main()
