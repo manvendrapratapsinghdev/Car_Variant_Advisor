@@ -277,30 +277,26 @@
 
 ## 🎨 SPRINT 4: Streamlit Frontend (Hours 23-34)
 
-### ✅ Story 4.1: Budget-First Search + Optional Filters (Phase 3) (3 hours)
-**Objective**: Make budget (amount + margin%) the primary search, with optional Make/Model constraints
+### ✅ Story 4.1: Budget-Only Variant Search (Phase 3 Revised) (3 hours)
+**Objective**: Budget is the ONLY search. Return N variants from any brand/model within budget range, with optional Brand/Model filters to narrow results.
 
 **Implementation Steps**:
 1. Add Budget dropdown (₹10,000 steps; show in lakhs with 2-decimal rounding; store rupees)
-2. Add Margin% dropdown (default 5%)
-3. Keep Make optional; show Model dropdown only if Make is selected (Model remains optional)
-4. Add a Search button that fetches candidate variants only on click
-5. Populate Variant dropdown from budget candidates (2–5 variants), formatted as `Variant (₹price)`
-6. Preserve existing downstream behavior (variant selection → upgrade options + feature extras comparison)
-7. Show a one-line disclaimer only when Make and/or Model is selected
-8. Show a one-line fallback message when expand/fallback is used: “No cars in selected range; showing nearest matches.”
+2. Add Margin% dropdown (default 10%)
+3. Add Count dropdown (2, 3, 4, 5 — default 3)
+4. Keep Brand/Model optional filters (narrow, not expand)
+5. Add a Search button that fetches candidates on click
+6. Search Logic:
+   - First search [budget, budget + margin] (upper range)
+   - If fewer than Count re   - If fewer than Count re   - If fewer than Count re   - If fewer than Count re   - If fewer than Coun   - If fewer than Count re   - If fewer than Count re   -n    - If fewer than Cotio   - If fewer than Count re   - If fewer than C a   - If fewer than Count re   -
 
-**Testing**:
-- Automated: Smoke test for helper formatting (lakhs label) and query integration
-- Manual:
-   - Open search (no make/model): budget search returns 2–5 nearest-priced candidates
-   - Make only: candidates constrained to make, disclaimer displayed
-   - Make+Model: candidates constrained to make+model, disclaimer displayed
-   - Small budget edge: triggers fallback message and still returns nearest matches
+********************************tes********************************tbel) an*************ration
+********************************tes********************************tbel) an***d candidates
+   - With Brand filter: candidates constrained to brand
+   - With Brand+Model: candidates constrained to both
+   - Edge case: very low/high budget triggers "no results" message
 
-**Completion Criteria**: [ ] Budget-first search returns 2–5 candidates and preserves existing comparison flow
-
----
+**Completion Criteria**: [ ] Budget-only search returns N candidates as comparison table with AI recommendation---
 
 ### ✅ Story 4.2: Selected Variant Card (2 hours)
 **Objective**: Display chosen variant details
