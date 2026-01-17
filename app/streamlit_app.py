@@ -420,7 +420,7 @@ with st.sidebar:
     # Branding header
     
     st.markdown("### 💡 About")
-    st.markdown("<p style='font-size: 0.95rem;'>This AI advisor helps you find the best car variant upgrade based on your budget and needs.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 0.95rem;'>This AI advisor helps you find the best car variants within your budget using AI-powered insights and feature comparison.</p>", unsafe_allow_html=True)
     
     st.markdown("### 🎯 How it works")
     st.markdown("""
@@ -496,10 +496,12 @@ ALL_MODELS = "All models"
 
 budget_options = _build_budget_options()
 
-col1, col2, col3, col4, col5 = st.columns(5)
+# Row 1: Budget and Margin
+st.markdown("#### 💰 Budget Settings")
+row1_col1, row1_col2 = st.columns([3, 1])
 
-with col1:
-    st.markdown("### 💰 Budget")
+with row1_col1:
+    st.markdown("**Budget**")
     if budget_options:
         default_idx = _closest_index(budget_options, 600_000)
         selected_budget = st.selectbox(
@@ -513,8 +515,8 @@ with col1:
     else:
         selected_budget = st.selectbox("Budget", ["No price data"], disabled=True, label_visibility="collapsed")
 
-with col2:
-    st.markdown("### 📏 Margin")
+with row1_col2:
+    st.markdown("**Margin**")
     margin_options = [5, 10, 15, 20, 25, 30, 40, 50]
     selected_margin = st.selectbox(
         "Margin",
@@ -525,8 +527,12 @@ with col2:
         label_visibility="collapsed",
     )
 
-with col3:
-    st.markdown("### 🔢 Count")
+# Row 2: Additional Filters
+st.markdown("<p style='font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;'>🎯 Additional Filters</p>", unsafe_allow_html=True)
+row2_col1, row2_col2, row2_col3 = st.columns(3)
+
+with row2_col1:
+    st.markdown("**🔢 Count**")
     count_options = [2, 3, 4, 5]
     selected_count = st.selectbox(
         "Count",
@@ -537,8 +543,8 @@ with col3:
         label_visibility="collapsed",
     )
 
-with col4:
-    st.markdown("### 🏢 Brand")
+with row2_col2:
+    st.markdown("**🏢 Brand**")
     makes = get_all_makes()
     selected_make = st.selectbox(
         "Brand",
@@ -549,8 +555,8 @@ with col4:
     if selected_make == ALL_BRANDS:
         selected_make = None
 
-with col5:
-    st.markdown("### 🚗 Model")
+with row2_col3:
+    st.markdown("**🚗 Model**")
     if selected_make:
         models = get_models_by_make(selected_make)
         selected_model = st.selectbox(
@@ -615,13 +621,28 @@ if budget_search_meta.get("no_results"):
 
 st.divider()
 
-# Display Search Results as Comparison Table
+# Helper function to parse feature strings from metadata
+def parse_feature_string(feature_str: str) -> list:
+    """Parse feature string back to list."""
+    import ast
+    try:
+        if not feature_str or feature_str == '[]':
+            return []
+        if feature_str.endswith('...') or not feature_str.endswith(']'):
+            feature_str = feature_str.rstrip('...') + ']'
+        features = ast.literal_eval(feature_str)
+        return features if isinstance(features, list) else []
+    except Exception:
+        return []
+
+# Display Search Results with Full Feature Comparison
 if budget_candidates:
     st.markdown(f"### 🚗 Search Results ({len(budget_candidates)} variants found)")
     
     # Build comparison table data
     import pandas as pd
     
+    # Summary table first
     table_data = []
     for i, meta in enumerate(budget_candidates, 1):
         table_data.append({
@@ -632,6 +653,8 @@ if budget_candidates:
             "Price": f"₹{float(meta.get('price', 0)):,.0f}",
             "Price (Lakhs)": f"₹{float(meta.get('price', 0))/100000:.2f} L",
             "Tier": str(meta.get("tier_name", "")).title(),
+            "Fuel": meta.get("fuel_type", ""),
+            "Body": meta.get("body_type", ""),
         })
     
     df = pd.DataFrame(table_data)
@@ -648,8 +671,105 @@ if budget_candidates:
             "Price": st.column_config.TextColumn("Price", width="medium"),
             "Price (Lakhs)": st.column_config.TextColumn("Price (Lakhs)", width="small"),
             "Tier": st.column_config.TextColumn("Tier", width="small"),
+            "Fuel": st.column_config.TextColumn("Fuel", width="small"),
+            "Body": st.column_config.TextColumn("Body", width="small"),
         }
     )
+    
+    st.divider()
+    
+    # Parse features for all candidates (needed for both sections)
+    feature_categories = ['safety', 'comfort', 'technology', 'exterior', 'convenience']
+    category_icons = {
+        'safety': '🛡️',
+        'comfort': '🛋️', 
+        'technology': '💻',
+        'exterior': '🚙',
+        'convenience': '⚡'
+    }
+    
+    # Collect all unique features per category across all variants
+    all_features_by_category = {cat: set() for cat in feature_categories}
+    variant_features = []
+    
+    for meta in budget_candidates:
+        variant_feat = {}
+        for cat in feature_categories:
+            features = parse_feature_string(meta.get(f'features_{cat}', '[]'))
+            variant_feat[cat] = set(features)
+            all_features_by_category[cat].update(features)
+        variant_features.append(variant_feat)
+    
+    # Individual Variant Details (expandable cards) - FIRST
+    st.markdown("### 🔍 Individual Variant Details")
+    
+    for i, meta in enumerate(budget_candidates):
+        variant_label = f"{meta.get('make', '')} {meta.get('model', '')} - {meta.get('variant_name', '')}"
+        price_display = f"₹{float(meta.get('price', 0))/100000:.2f} L"
+        tier_display = str(meta.get('tier_name', '')).title()
+        
+        with st.expander(f"**{i+1}. {variant_label}** | {price_display} | {tier_display} Tier", expanded=(i == 0)):
+            # Basic info columns
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("💰 Price", price_display)
+            with col2:
+                st.metric("⛽ Fuel Type", meta.get("fuel_type", "N/A"))
+            with col3:
+                st.metric("🚙 Body Type", meta.get("body_type", "N/A"))
+            with col4:
+                st.metric("👥 Seats", int(float(meta.get("seating_capacity", 0))) if meta.get("seating_capacity") else "N/A")
+            
+            st.divider()
+            
+            # Features by category
+            for category in feature_categories:
+                features = parse_feature_string(meta.get(f'features_{category}', '[]'))
+                if features:
+                    icon = category_icons.get(category, '📌')
+                    st.markdown(f"**{icon} {category.upper()}** ({len(features)} features)")
+                    # Display features in a compact format
+                    feature_html = " • ".join([f"<span style='background-color: #f0f2f6; padding: 2px 8px; border-radius: 12px; margin: 2px; display: inline-block; font-size: 0.85rem;'>{f}</span>" for f in features[:15]])
+                    if len(features) > 15:
+                        feature_html += f" <span style='color: #666; font-style: italic;'>+{len(features) - 15} more...</span>"
+                    st.markdown(feature_html, unsafe_allow_html=True)
+                    st.markdown("")  # Spacing
+    
+    st.divider()
+    
+    # Detailed Feature Comparison Section - SECOND
+    st.markdown("### 📋 Detailed Feature Comparison")
+    
+    # Build feature comparison matrix per category
+    for category in feature_categories:
+        cat_features = sorted(list(all_features_by_category[category]))
+        if not cat_features:
+            continue
+        
+        icon = category_icons.get(category, '📌')
+        with st.expander(f"{icon} {category.upper()} Features ({len(cat_features)} features)", expanded=False):
+            # Build matrix for this category
+            matrix_data = []
+            for feature in cat_features:
+                row = {"Feature": feature}
+                for i, meta in enumerate(budget_candidates):
+                    variant_name = f"{meta.get('make', '')} {meta.get('model', '')} - {meta.get('variant_name', '')}"
+                    has_feature = feature in variant_features[i][category]
+                    row[variant_name] = "✅" if has_feature else "❌"
+                matrix_data.append(row)
+            
+            cat_df = pd.DataFrame(matrix_data)
+            
+            # Style the dataframe
+            def highlight_features(val):
+                if val == "✅":
+                    return "background-color: #d4edda; color: #155724; font-weight: bold;"
+                elif val == "❌":
+                    return "background-color: #f8d7da; color: #721c24;"
+                return ""
+            
+            styled_df = cat_df.style.applymap(highlight_features, subset=[c for c in cat_df.columns if c != "Feature"])
+            st.dataframe(styled_df, use_container_width=True, hide_index=True, height=min(400, 50 + len(cat_features) * 35))
     
     st.divider()
     
