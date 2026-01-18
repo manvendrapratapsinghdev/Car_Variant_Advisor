@@ -422,16 +422,29 @@ with st.sidebar:
     # Branding header
     
     st.markdown("### 💡 About")
-    st.markdown("<p style='font-size: 0.95rem;'>This AI advisor helps you find the best car variants within your budget using AI-powered insights and feature comparison.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 0.95rem;'>AI-powered car advisor that understands natural language. Just describe what you want - budget, features, brands - and let AI find the perfect match.</p>", unsafe_allow_html=True)
     
     st.markdown("### 🎯 How it works")
     st.markdown("""
-    <ol style='font-size: 0.95rem; padding-left: 0.6rem;'>
-    <li>Select your budget (amount + margin + count)</li>
-    <li>(Optional) Narrow results by brand and model</li>
-    <li>Click Search to see matching variants</li>
+    <ol style='font-size: 0.9rem; padding-left: 0.6rem;'>
+    <li><b>Text Search:</b> Just type what you want in plain English - AI understands your requirements</li>
+    <li><b>Or Use Filters:</b> Pick budget range, brand, model from dropdowns</li>
+    <li><b>AI Magic:</b> Gemini AI extracts budget, brands, features & ranks best matches</li>
+    <li><b>Compare:</b> View feature-by-feature comparison across variants</li>
     </ol>
     """, unsafe_allow_html=True)
+    st.divider()
+    st.markdown("### ⚙️ Search Settings")
+    count_options = [2, 3, 4, 5]
+    selected_count = st.selectbox(
+        "🔢 Number of suggestions",
+        count_options,
+        index=1,  # Default 3
+        format_func=lambda x: f"{x} results",
+        key="result_count",
+        help="Number of car variants to show in results"
+    )
+
     st.divider()
     st.markdown("### 📊 Statistics")
     makes_count = len(get_all_makes())
@@ -643,21 +656,9 @@ with row1_col2:
 
 # Row 2: Additional Filters
 st.markdown("<p style='font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;'>🎯 Additional Filters</p>", unsafe_allow_html=True)
-row2_col1, row2_col2, row2_col3 = st.columns(3)
+row2_col1, row2_col2 = st.columns(2)
 
 with row2_col1:
-    st.markdown("**🔢 Number of suggestions**")
-    count_options = [2, 3, 4, 5]
-    selected_count = st.selectbox(
-        "Count",
-        count_options,
-        index=1,  # Default 3
-        format_func=lambda x: f"{x} results",
-        key="result_count",
-        label_visibility="collapsed",
-    )
-
-with row2_col2:
     st.markdown("**🏢 Brand**")
     makes = get_all_makes()
     selected_make = st.selectbox(
@@ -669,7 +670,7 @@ with row2_col2:
     if selected_make == ALL_BRANDS:
         selected_make = None
 
-with row2_col3:
+with row2_col2:
     st.markdown("**🚗 Model**")
     if selected_make:
         models = get_models_by_make(selected_make)
