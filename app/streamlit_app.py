@@ -630,17 +630,21 @@ row1_col1, row1_col2 = st.columns([3, 1])
 with row1_col1:
     st.markdown("**💰 Budget**")
     if budget_options:
-        default_idx = _closest_index(budget_options, 600_000)
-        selected_budget = st.selectbox(
+        # Add placeholder option at the beginning
+        budget_display_options = ["Select budget..."] + budget_options
+        selected_budget_idx = st.selectbox(
             "Budget",
-            budget_options,
-            index=default_idx,
-            format_func=_format_budget_lakhs,
+            range(len(budget_display_options)),
+            index=0,  # Default to placeholder
+            format_func=lambda i: budget_display_options[i] if i == 0 else _format_budget_lakhs(budget_display_options[i]),
             key="budget_rupees",
             label_visibility="collapsed",
         )
+        # Get actual budget value (None if placeholder selected)
+        selected_budget = None if selected_budget_idx == 0 else budget_display_options[selected_budget_idx]
     else:
         selected_budget = st.selectbox("Budget", ["No price data"], disabled=True, label_visibility="collapsed")
+        selected_budget = None
 
 with row1_col2:
     st.markdown("**Margin budget**")
@@ -699,21 +703,24 @@ with col_center:
 st.markdown("</div>", unsafe_allow_html=True)
 
 if selection_search_button:
-    with st.spinner("Searching variants near your budget..."):
-        candidates, search_meta = search_variants_by_budget(
-            budget_rupees=float(selected_budget),
-            margin_pct=float(selected_margin),
-            count=int(selected_count),
-            brand=selected_make,
-            model=selected_model,
-        )
-        st.session_state["budget_candidates"] = candidates
-        st.session_state["budget_search_meta"] = search_meta
-        st.session_state["budget_search_params"] = {
-            "budget_rupees": float(selected_budget),
-            "margin_pct": float(selected_margin),
-            "count": int(selected_count),
-            "brand": selected_make,
+    if selected_budget is None:
+        st.warning("⚠️ Please select a budget to search.")
+    else:
+        with st.spinner("Searching variants near your budget..."):
+            candidates, search_meta = search_variants_by_budget(
+                budget_rupees=float(selected_budget),
+                margin_pct=float(selected_margin),
+                count=int(selected_count),
+                brand=selected_make,
+                model=selected_model,
+            )
+            st.session_state["budget_candidates"] = candidates
+            st.session_state["budget_search_meta"] = search_meta
+            st.session_state["budget_search_params"] = {
+                "budget_rupees": float(selected_budget),
+                "margin_pct": float(selected_margin),
+                "count": int(selected_count),
+                "brand": selected_make,
             "model": selected_model,
         }
 
