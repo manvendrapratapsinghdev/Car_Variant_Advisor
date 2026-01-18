@@ -3,9 +3,52 @@
 Provides functions for UI dropdowns and variant retrieval.
 """
 
+import os
+import shutil
 from typing import List, Dict, Optional, Tuple, Iterable, Any
 from src.database.chroma_client import CarVariantDB
 import ast
+
+
+def _rebuild_database(db_path: str) -> bool:
+    """Rebuild the ChromaDB database from source data.
+    
+    This handles version mismatches between local and cloud environments.
+    """
+    import pandas as pd
+    
+    try:
+        print("[DB Recovery] Attempting to rebuild database...")
+        
+        # Find project root
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        pickle_path = os.path.join(project_root, "data/processed/cars_final_processed.pkl")
+        
+        if not os.path.exists(pickle_path):
+            print(f"[DB Recovery] Source file not found: {pickle_path}")
+            return False
+        
+        # Remove corrupted database
+        if os.path.exists(db_path):
+            print(f"[DB Recovery] Removing old database at {db_path}")
+            shutil.rmtree(db_path, ignore_errors=True)
+        
+        # Recreate database
+        print("[DB Recovery] Loading source data...")
+        df = pd.read_pickle(pickle_path)
+        print(f"[DB Recovery] Loaded {len(df)} variants")
+        
+        # Initialize fresh DB
+        db = CarVariantDB(persist_directory=db_path)
+        db.create_collection(reset=True)
+        db.ingest_data(df, batch_size=100)
+        
+        print("[DB Recovery] ✅ Database rebuilt successfully!")
+        return True
+        
+    except Exception as e:
+        print(f"[DB Recovery] ❌ Failed to rebuild database: {e}")
+        return False
 
 
 class VariantQueries:
@@ -13,11 +56,35 @@ class VariantQueries:
     
     def __init__(self, db_path: str = "./data/car_variants_db"):
         """Initialize with database connection."""
-        self.db = CarVariantDB(persist_directory=db_path)
-        self.collection = self.db.get_collection()
-        
-        if not self.collection:
-            raise RuntimeError("Database collection not found. Run chroma_client.py first to ingest data.")
+        self.db_path = db_path
+        self._initialize_db()
+    
+    def _initialize_db(self, retry_after_rebuild: bool = True):
+        """Initialize database connection with error recovery."""
+        try:
+            self.db = CarVariantDB(persist_directory=self.db_path)
+            self.collection = self.db.get_collection()
+            
+            if not self.collection:
+                raise RuntimeError("Database collection not found.")
+            
+            # Test the connection with a simple query
+            self.collection.get(limit=1, include=["metadatas"])
+            
+        except Exception as e:
+            error_msg = str(e).lower()
+            
+            # Check if it's a database corruption/version mismatch error
+            if retry_after_rebuild and ('sqlite' in error_msg or 'database' in error_msg or 'malformed' in error_msg):
+                print(f"[DB Init] Database error detected: {e}")
+                print("[DB Init] Attempting automatic recovery...")
+                
+                if _rebuild_database(self.db_path):
+                    # Try again after rebuild
+                    self._initialize_db(retry_after_rebuild=False)
+                    return
+            
+            raise RuntimeError(f"Database initialization failed: {e}")
     
     def get_all_makes(self) -> List[str]:
         """
