@@ -369,10 +369,20 @@ The **[Best Variant Name]** offers the BEST value for money. [Explain why this i
             }
             
         except Exception as e:
-            self.trace.append(f"❌ Error: {str(e)}")
+            error_str = str(e)
+            self.trace.append(f"❌ Error: {error_str}")
+            
+            # Provide user-friendly message for quota errors
+            if '429' in error_str or 'quota' in error_str.lower() or 'exceeded' in error_str.lower():
+                user_message = "🔄 AI service is temporarily busy (rate limit reached). Please wait a moment and try again."
+            elif 'api key' in error_str.lower() or 'authentication' in error_str.lower():
+                user_message = "⚠️ AI service configuration issue. Please contact support."
+            else:
+                user_message = f"⚠️ An error occurred: {error_str}"
+            
             return {
                 'status': 'error',
-                'message': str(e),
+                'message': user_message,
                 'trace': self.trace
             }
     
