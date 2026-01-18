@@ -945,7 +945,7 @@ elif budget_search_meta.get("no_results"):
     st.info("Try adjusting your budget, increasing the margin, or removing brand/model filters.")
 elif not st.session_state.get("budget_candidates"):
     st.markdown("### 🎯 Getting Started")
-    st.info("Select your budget and click **Search Variants** to find matching cars.")
+    st.info("**Text Search:** Describe what you want in plain English above ☝️\n\n**Or use filters:** Select budget, brand & model from the dropdowns below and click **Search Cars**")
 
 st.markdown(
     """
