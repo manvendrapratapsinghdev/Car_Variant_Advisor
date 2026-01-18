@@ -468,6 +468,214 @@ class VariantQueries:
             picked.append(meta)
             return
 
+    def search_variants_by_requirements(
+        self,
+        budget_min: Optional[float] = None,
+        budget_max: Optional[float] = None,
+        margin_pct: float = 10.0,
+        brands: Optional[List[str]] = None,
+        model: Optional[str] = None,
+        fuel_type: Optional[str] = None,
+        body_type: Optional[str] = None,
+        seating_capacity: Optional[int] = None,
+        transmission: Optional[str] = None,
+        required_features: Optional[List[str]] = None,
+        count: int = 3,
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """Search variants by natural language parsed requirements (Phase 4).
+
+        Priority Order:
+        1. Price - strict filter within range
+        2. Brand(s) - OR condition for multiple brands
+        3. Model - requires brand to be set
+        4. Features - ranking score, not exclusion
+
+        Args:
+            budget_min: Minimum budget in rupees (if single value, apply margin_pct)
+            budget_max: Maximum budget in rupees (if None and budget_min set, apply margin_pct)
+            margin_pct: Margin percentage when only single budget value (default 10%)
+            brands: List of brand names to filter (OR condition)
+            model: Model name to filter (requires brands to have single value)
+            fuel_type: Fuel type filter (Petrol, Diesel, CNG, Electric)
+            body_type: Body type filter (Hatchback, Sedan, SUV, etc.)
+            seating_capacity: Seating capacity filter
+            transmission: Transmission type (Manual, Automatic)
+            required_features: List of features for ranking (not exclusion)
+            count: Number of results to return (default 3)
+
+        Returns:
+            (candidates, meta)
+            meta includes: filters_applied, relaxed, feature_scores
+        """
+        meta_info = {
+            "filters_applied": [],
+            "relaxed": False,
+            "no_results": False,
+            "feature_ranking_applied": False
+        }
+        
+        # Build base where clauses
+        clauses: List[Dict[str, Any]] = []
+        
+        # Priority 1: Price filter
+        if budget_min is not None or budget_max is not None:
+            if budget_min is not None and budget_max is None:
+                # Single value - apply margin
+                delta = (margin_pct / 100.0) * float(budget_min)
+                price_min = float(budget_min) - delta
+                price_max = float(budget_min) + delta
+                meta_info["filters_applied"].append(f"price: ₹{price_min:,.0f} - ₹{price_max:,.0f}")
+            elif budget_min is None and budget_max is not None:
+                # Only max specified (under X)
+                price_min = 0
+                price_max = float(budget_max)
+                meta_info["filters_applied"].append(f"price: under ₹{price_max:,.0f}")
+            else:
+                # Range specified
+                price_min = float(budget_min)
+                price_max = float(budget_max)
+                meta_info["filters_applied"].append(f"price: ₹{price_min:,.0f} - ₹{price_max:,.0f}")
+            
+            clauses.append({"price": {"$gte": price_min}})
+            clauses.append({"price": {"$lte": price_max}})
+        
+        # Priority 2: Brand filter (OR condition for multiple brands)
+        # ChromaDB doesn't support $or in where, so we'll filter in post-processing
+        brand_filter = None
+        if brands and len(brands) > 0:
+            brand_filter = [b.strip() for b in brands if b and b.strip()]
+            if brand_filter:
+                meta_info["filters_applied"].append(f"brands: {', '.join(brand_filter)}")
+        
+        # Priority 3: Model filter (only if single brand and model specified)
+        model_filter = None
+        if model and brand_filter and len(brand_filter) == 1:
+            model_filter = model.strip()
+            clauses.append({"model": model_filter})
+            meta_info["filters_applied"].append(f"model: {model_filter}")
+        
+        # Additional filters: fuel_type, body_type, seating_capacity, transmission
+        if fuel_type:
+            clauses.append({"fuel_type": fuel_type})
+            meta_info["filters_applied"].append(f"fuel_type: {fuel_type}")
+        
+        if body_type:
+            clauses.append({"body_type": body_type})
+            meta_info["filters_applied"].append(f"body_type: {body_type}")
+        
+        if seating_capacity:
+            clauses.append({"seating_capacity": str(seating_capacity)})
+            meta_info["filters_applied"].append(f"seating: {seating_capacity} seater")
+        
+        # Note: transmission is not stored as metadata, skip for now
+        
+        # Build final where clause
+        where = None
+        if len(clauses) == 1:
+            where = clauses[0]
+        elif len(clauses) > 1:
+            where = {"$and": clauses}
+        
+        # Execute query
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
+        metadatas = result.get('metadatas') or []
+        
+        # Post-filter by brands (OR condition)
+        if brand_filter:
+            metadatas = [
+                m for m in metadatas 
+                if m.get('make', '').strip() in brand_filter
+            ]
+        
+        # If no results, try relaxing constraints
+        if not metadatas:
+            meta_info["relaxed"] = True
+            # Relax: remove brand filter, keep price
+            if brand_filter and where:
+                # Rebuild without brand
+                relaxed_clauses = [c for c in clauses if c != {"model": model_filter}]
+                if len(relaxed_clauses) == 1:
+                    relaxed_where = relaxed_clauses[0]
+                elif len(relaxed_clauses) > 1:
+                    relaxed_where = {"$and": relaxed_clauses}
+                else:
+                    relaxed_where = None
+                
+                result = self.collection.get(where=relaxed_where, include=["metadatas"]) if relaxed_where else self.collection.get(include=["metadatas"])
+                metadatas = result.get('metadatas') or []
+        
+        # If still no results
+        if not metadatas:
+            meta_info["no_results"] = True
+            return [], meta_info
+        
+        # Priority 4: Feature ranking (not exclusion)
+        if required_features and len(required_features) > 0:
+            meta_info["feature_ranking_applied"] = True
+            metadatas = self._score_by_features(metadatas, required_features)
+        
+        # Sort by feature_score (if applied), then by price
+        if meta_info["feature_ranking_applied"]:
+            metadatas.sort(key=lambda m: (-m.get('_feature_score', 0), float(m.get('price', 0))))
+        else:
+            metadatas.sort(key=lambda m: float(m.get('price', 0)))
+        
+        # Dedupe and limit results
+        candidates = self._select_candidates_from_metadatas(metadatas, budget_min or 0, k_max=count)
+        
+        # Clean up internal score field before returning
+        for c in candidates:
+            if '_feature_score' in c:
+                c['feature_score'] = c.pop('_feature_score')
+            if '_matched_features' in c:
+                c['matched_features'] = c.pop('_matched_features')
+        
+        return candidates, meta_info
+
+    def _score_by_features(
+        self, 
+        metadatas: List[Dict[str, Any]], 
+        required_features: List[str]
+    ) -> List[Dict[str, Any]]:
+        """Score variants by how many required features they contain.
+        
+        Args:
+            metadatas: List of variant metadata dicts
+            required_features: List of feature strings to search for
+            
+        Returns:
+            Same list with _feature_score and _matched_features added
+        """
+        feature_fields = [
+            'features_safety', 'features_comfort', 'features_technology',
+            'features_exterior', 'features_convenience'
+        ]
+        
+        # Normalize required features for matching
+        required_normalized = [f.lower().strip() for f in required_features]
+        
+        for meta in metadatas:
+            score = 0
+            matched = []
+            
+            # Combine all feature fields
+            all_features_text = ""
+            for field in feature_fields:
+                field_value = meta.get(field, "")
+                if field_value:
+                    all_features_text += " " + field_value.lower()
+            
+            # Check each required feature
+            for req_feat in required_normalized:
+                if req_feat in all_features_text:
+                    score += 1
+                    matched.append(req_feat)
+            
+            meta['_feature_score'] = score
+            meta['_matched_features'] = matched
+        
+        return metadatas
+
 
 # Module-level convenience functions
 _queries = None
@@ -572,6 +780,60 @@ def search_variants_by_budget(
         count=count,
         brand=brand,
         model=model,
+    )
+
+
+def search_variants_by_requirements(
+    budget_min: Optional[float] = None,
+    budget_max: Optional[float] = None,
+    margin_pct: float = 10.0,
+    brands: Optional[List[str]] = None,
+    model: Optional[str] = None,
+    fuel_type: Optional[str] = None,
+    body_type: Optional[str] = None,
+    seating_capacity: Optional[int] = None,
+    transmission: Optional[str] = None,
+    required_features: Optional[List[str]] = None,
+    count: int = 3,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Module-level wrapper for requirement-based variant search (Phase 4).
+
+    Priority Order:
+    1. Price - strict filter within range
+    2. Brand(s) - OR condition for multiple brands
+    3. Model - requires brand to be set
+    4. Features - ranking score, not exclusion
+
+    Args:
+        budget_min: Minimum budget in rupees
+        budget_max: Maximum budget in rupees
+        margin_pct: Margin percentage when only single budget value (default 10%)
+        brands: List of brand names to filter (OR condition)
+        model: Model name to filter (requires brands)
+        fuel_type: Fuel type filter
+        body_type: Body type filter
+        seating_capacity: Seating capacity filter
+        transmission: Transmission type
+        required_features: List of features for ranking
+        count: Number of results to return (default 3)
+
+    Returns:
+        (candidates, meta)
+    """
+    if not _queries:
+        init_queries()
+    return _queries.search_variants_by_requirements(
+        budget_min=budget_min,
+        budget_max=budget_max,
+        margin_pct=margin_pct,
+        brands=brands,
+        model=model,
+        fuel_type=fuel_type,
+        body_type=body_type,
+        seating_capacity=seating_capacity,
+        transmission=transmission,
+        required_features=required_features,
+        count=count,
     )
 
 

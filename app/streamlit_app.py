@@ -30,10 +30,12 @@ from src.database.queries import (
     get_price_range,
     find_variants_by_budget,
     search_variants_by_budget,
+    search_variants_by_requirements,
 )
 from src.agent.simple_recommender import SimpleRecommendationEngine
 from src.agent.nlg_engine import NLGEngine
 from src.agent.voice_assistant import VoiceAssistant
+from src.agent.direct_gemini_agent import DirectGeminiAgent
 from src.utils.feature_comparison import build_feature_comparison_matrix
 from src.utils.feature_price_chart import generate_feature_price_chart
 from dotenv import load_dotenv
@@ -499,10 +501,10 @@ budget_options = _build_budget_options()
 # Text search option
 st.markdown("#### 🔍 Text based search")
 
-st.markdown("<p style='font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;'>Describe what you're looking for - features, preferences, or requirements</p>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;'>Describe your budget, preferred features, and brands - AI will find the best matches</p>", unsafe_allow_html=True)
 search_query = st.text_area(
     "Search",
-    placeholder="e.g., I want a car with sunroof, automatic transmission, good mileage, diesel engine, 7 seater for family trips...",
+    placeholder="e.g., I have a budget of 5-6 lacs, looking for a car with sunroof, 6 airbags, and automatic transmission. Preferred brands are Hyundai or Kia",
     key="feature_search",
     label_visibility="collapsed",
     height=80,
@@ -513,13 +515,97 @@ search_query = st.text_area(
 st.markdown("<div style='display: flex; justify-content: center; margin: 1.25rem 0 0.5rem;'>", unsafe_allow_html=True)
 col_left, col_center, col_right = st.columns([1, 2, 1])
 with col_center:
-    search_button = st.button(
+    text_search_button = st.button(
         "🔎 Search Cars",
         type="secondary",
         disabled=not bool(budget_options),
         use_container_width=True,
+        key="text_search_btn",
     )
 st.markdown("</div>", unsafe_allow_html=True)
+
+# Handle text-based search with NLP parsing
+if text_search_button and search_query and search_query.strip():
+    with st.spinner("🤖 AI is parsing your search query..."):
+        try:
+            # Initialize Gemini agent for NLP parsing
+            nlp_agent = DirectGeminiAgent()
+            parsed_params = nlp_agent.parse_search_query(search_query.strip())
+            
+            if parsed_params is None:
+                st.error("❌ Couldn't understand your query. Please try rephrasing it.")
+                st.session_state["text_search_error"] = True
+            else:
+                st.session_state["text_search_error"] = False
+                st.session_state["parsed_search_params"] = parsed_params
+                
+                # Show what was parsed
+                parsed_info = []
+                if parsed_params.get("budget_min") or parsed_params.get("budget_max"):
+                    if parsed_params.get("budget_min") and parsed_params.get("budget_max"):
+                        parsed_info.append(f"💰 Budget: ₹{parsed_params['budget_min']/100000:.1f}L - ₹{parsed_params['budget_max']/100000:.1f}L")
+                    elif parsed_params.get("budget_min"):
+                        parsed_info.append(f"💰 Budget: ~₹{parsed_params['budget_min']/100000:.1f}L (±10% margin)")
+                    else:
+                        parsed_info.append(f"💰 Budget: Under ₹{parsed_params['budget_max']/100000:.1f}L")
+                if parsed_params.get("brands"):
+                    parsed_info.append(f"🏢 Brands: {', '.join(parsed_params['brands'])}")
+                if parsed_params.get("model"):
+                    parsed_info.append(f"🚗 Model: {parsed_params['model']}")
+                if parsed_params.get("fuel_type"):
+                    parsed_info.append(f"⛽ Fuel: {parsed_params['fuel_type']}")
+                if parsed_params.get("body_type"):
+                    parsed_info.append(f"🚙 Body: {parsed_params['body_type']}")
+                if parsed_params.get("seating_capacity"):
+                    parsed_info.append(f"👥 Seats: {parsed_params['seating_capacity']}")
+                if parsed_params.get("transmission"):
+                    parsed_info.append(f"⚙️ Transmission: {parsed_params['transmission']}")
+                if parsed_params.get("required_features"):
+                    parsed_info.append(f"✨ Features: {', '.join(parsed_params['required_features'][:5])}")
+                
+                if parsed_info:
+                    st.success("✅ Understood! Searching with: " + " | ".join(parsed_info))
+                
+                # Execute the search with parsed parameters
+                with st.spinner("🔍 Searching variants matching your requirements..."):
+                    candidates, search_meta = search_variants_by_requirements(
+                        budget_min=parsed_params.get("budget_min"),
+                        budget_max=parsed_params.get("budget_max"),
+                        margin_pct=10.0,  # Default margin
+                        brands=parsed_params.get("brands"),
+                        model=parsed_params.get("model"),
+                        fuel_type=parsed_params.get("fuel_type"),
+                        body_type=parsed_params.get("body_type"),
+                        seating_capacity=parsed_params.get("seating_capacity"),
+                        transmission=parsed_params.get("transmission"),
+                        required_features=parsed_params.get("required_features"),
+                        count=3,  # Default count
+                    )
+                    
+                    st.session_state["budget_candidates"] = candidates
+                    st.session_state["budget_search_meta"] = search_meta
+                    st.session_state["budget_search_params"] = {
+                        "budget_rupees": parsed_params.get("budget_min") or parsed_params.get("budget_max") or 0,
+                        "margin_pct": 10.0,
+                        "count": 3,
+                        "brand": parsed_params.get("brands")[0] if parsed_params.get("brands") else None,
+                        "model": parsed_params.get("model"),
+                        "text_search": True,
+                        "parsed_params": parsed_params,
+                    }
+                    
+                    # Show filter relaxation info if applicable
+                    if search_meta.get("relaxed"):
+                        st.info("ℹ️ No exact matches found. Showing similar options with relaxed filters.")
+                    if search_meta.get("feature_ranking_applied"):
+                        st.info("✨ Results ranked by feature match score.")
+                        
+        except Exception as e:
+            st.error(f"❌ Error parsing query: {str(e)}")
+            st.session_state["text_search_error"] = True
+
+elif text_search_button and (not search_query or not search_query.strip()):
+    st.warning("⚠️ Please enter a search query or use the selection-based search below.")
 
 st.markdown("<p style='text-align: center; color: #9C27B0; font-weight: 600; font-size: 1.2rem; margin: 1rem 0;'>— OR —</p>", unsafe_allow_html=True)
 
@@ -602,15 +688,16 @@ with row2_col3:
 st.markdown("<div style='display: flex; justify-content: center; margin: 1.25rem 0 0.5rem;'>", unsafe_allow_html=True)
 col_left, col_center, col_right = st.columns([1, 2, 1])
 with col_center:
-    search_button = st.button(
+    selection_search_button = st.button(
         "🔎 Search Cars",
         type="primary",
         disabled=not bool(budget_options),
         use_container_width=True,
+        key="selection_search_btn",
     )
 st.markdown("</div>", unsafe_allow_html=True)
 
-if search_button:
+if selection_search_button:
     with st.spinner("Searching variants near your budget..."):
         candidates, search_meta = search_variants_by_budget(
             budget_rupees=float(selected_budget),

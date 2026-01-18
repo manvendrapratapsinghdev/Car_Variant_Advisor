@@ -25,4 +25,8 @@ requests==2.31.0
 # Voice Assistant (NLP + TTS)
 gtts==2.4.0
 
+# Speech-to-Text
+audio-recorder-streamlit>=0.0.8
+SpeechRecognition>=3.10.0
+
 # Remove pydub and pytest for cloud deployment - not needed
