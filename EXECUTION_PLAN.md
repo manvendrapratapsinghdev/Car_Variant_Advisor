@@ -141,6 +141,26 @@
 
 ---
 
+### ✅ Story 2.4: Budget-Based Variant Search Query (Phase 3) (2 hours)
+**Objective**: Retrieve 2–5 candidate variants by budget (amount + margin%), with optional Make/Model constraints
+
+**Implementation Steps**:
+1. Add `get_price_range()` utility (min/max rupees) for UI budget dropdown
+2. Add `find_variants_by_budget(budget_rupees, pct, make=None, model=None, k_min=2, k_max=5)`
+3. Filter by Chroma metadata `price` within computed bounds
+4. Sort by nearest price to budget (stable ordering on ties)
+5. Deduplicate while filling using (make, model, variant_name)
+6. Auto-expand margin (+5% steps up to 50%) until k_min is met
+7. Fallback when empty: return nearest-lower + nearest-higher priced variants (within the same constraints)
+
+**Testing**:
+- Automated: Unit test selection/sorting/dedupe/expand/fallback logic without requiring a live Chroma DB (mock metadata lists)
+- Manual: In Streamlit, pick budgets at min/max and mid-range, verify 2–5 candidates appear and are closest in price
+
+**Completion Criteria**: [ ] Budget query returns 2–5 candidates with expand + fallback
+
+---
+
 ## 🤖 SPRINT 3: Agent Tools & Orchestration (Hours 14-22)
 
 ### ✅ Story 3.1: Tool 1 - Get Variant Details (1.5 hours)
@@ -257,23 +277,26 @@
 
 ## 🎨 SPRINT 4: Streamlit Frontend (Hours 23-34)
 
-### ✅ Story 4.1: Cascading Dropdowns (3 hours)
-**Objective**: Build Make → Model → Variant selection flow
+### ✅ Story 4.1: Budget-Only Variant Search (Phase 3 Revised) (3 hours)
+**Objective**: Budget is the ONLY search. Return N variants from any brand/model within budget range, with optional Brand/Model filters to narrow results.
 
 **Implementation Steps**:
-1. Create Streamlit page with st.selectbox for Make
-2. On Make selection, populate Model dropdown using get_models_by_make()
-3. On Model selection, populate Variant dropdown using get_variants_by_model()
-4. Use st.session_state to maintain selections
-5. Add "Show Recommendations" button (disabled until all 3 selected)
+1. Add Budget dropdown (₹10,000 steps; show in lakhs with 2-decimal rounding; store rupees)
+2. Add Margin% dropdown (default 10%)
+3. Add Count dropdown (2, 3, 4, 5 — default 3)
+4. Keep Brand/Model optional filters (narrow, not expand)
+5. Add a Search button that fetches candidates on click
+6. Search Logic:
+   - First search [budget, budget + margin] (upper range)
+   - If fewer than Count re   - If fewer than Count re   - If fewer than Count re   - If fewer than Count re   - If fewer than Coun   - If fewer than Count re   - If fewer than Count re   -n    - If fewer than Cotio   - If fewer than Count re   - If fewer than C a   - If fewer than Count re   -
 
-**Testing**:
-- Automated: N/A (UI testing)
-- Manual: Select Maruti → Swift → VXi, verify each dropdown updates correctly
+********************************tes********************************tbel) an*************ration
+********************************tes********************************tbel) an***d candidates
+   - With Brand filter: candidates constrained to brand
+   - With Brand+Model: candidates constrained to both
+   - Edge case: very low/high budget triggers "no results" message
 
-**Completion Criteria**: [ ] All 3 dropdowns cascade properly
-
----
+**Completion Criteria**: [ ] Budget-only search returns N candidates as comparison table with AI recommendation---
 
 ### ✅ Story 4.2: Selected Variant Card (2 hours)
 **Objective**: Display chosen variant details

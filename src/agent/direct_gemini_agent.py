@@ -3,12 +3,13 @@ Direct Gemini agent implementation (no LangChain DNS issues)
 Uses the new google-genai SDK that works with your API key
 """
 import os
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from dotenv import load_dotenv
 import google.generativeai as genai
 import json
 import sys
 import re
+import traceback
 # Add project root to path
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
@@ -44,6 +45,159 @@ class DirectGeminiAgent:
     def __init__(self):
         self.model = "gemini-2.5-flash"
         self.trace = []
+    
+    def parse_search_query(self, query: str) -> Optional[Dict[str, Any]]:
+        """Parse natural language search query into structured parameters using Gemini.
+        
+        Args:
+            query: Natural language search query (e.g., "I want a Maruti or Mahindra car, 5-6 lacs budget, with 6 airbags")
+            
+        Returns:
+            Dict with extracted parameters or None on parse failure:
+            {
+                "budget_min": float or None,
+                "budget_max": float or None,  
+                "brands": List[str] or [],
+                "model": str or None,
+                "fuel_type": str or None,  # Petrol, Diesel, CNG, Electric
+                "body_type": str or None,  # Hatchback, Sedan, SUV, MPV, etc.
+                "seating_capacity": int or None,  # 5, 7, etc.
+                "transmission": str or None,  # Manual, Automatic
+                "required_features": List[str] or []  # ["sunroof", "6 airbags", "Android Auto"]
+            }
+        """
+        if not query or not query.strip():
+            return None
+            
+        try:
+            prompt = f"""You are an expert car search query parser for the Indian car market. Extract structured search parameters from the user's natural language query.
+
+USER QUERY: "{query}"
+
+EXTRACTION RULES:
+
+1. BUDGET (Priority #1 - Most Important):
+   - Convert all amounts to rupees (1 lac/lakh = 100000 rupees)
+   - Range: "5-6 lacs", "5-6L" → budget_min: 500000, budget_max: 600000
+   - Single value: "2 lakh" or "5L" → budget_min: <amount>, budget_max: null (system applies 10% margin)
+   - Upper limit: "under 8 lakh", "within 8L", "upto 8 lacs" → budget_min: null, budget_max: 800000
+   - Lower limit: "above 10 lakh", "more than 10L" → budget_min: 1000000, budget_max: null
+   - Common variations: "lac", "lacs", "lakh", "lakhs", "L" all mean lakhs
+   - If not mentioned: both null
+
+2. BRANDS (Multiple allowed with OR condition):
+   - Extract ALL car manufacturers mentioned
+   - "Hyundai or Kia" → ["Hyundai", "Kia"]
+   - "Maruti, Tata, Mahindra" → ["Maruti", "Tata", "Mahindra"]
+   - "Preferred brands are Hyundai or Kia" → ["Hyundai", "Kia"]
+   - Normalize: "Maruti Suzuki" → "Maruti"
+   - Common Indian brands: Maruti, Hyundai, Tata, Mahindra, Kia, Toyota, Honda, MG, Skoda, Volkswagen
+
+3. MODEL (Specific car model):
+   - Extract model name: "Swift", "Creta", "Nexon", "Seltos", "Punch", etc.
+   - Only if explicitly mentioned
+
+4. FUEL TYPE: Petrol, Diesel, CNG, Electric, Hybrid, or null
+
+5. BODY TYPE: Hatchback, Sedan, SUV, Compact SUV, MPV, MUV, Crossover, or null
+
+6. SEATING CAPACITY: 5, 6, 7, etc. or null
+   - "7 seater", "7-seater car" → 7
+
+7. TRANSMISSION: Manual, Automatic, AMT, CVT, DCT, or null
+   - "automatic", "auto", "AT" → "Automatic"
+   - "manual", "MT" → "Manual"
+
+8. REQUIRED FEATURES (for ranking, not filtering):
+   - Safety: "airbags", "6 airbags", "dual airbags", "ABS", "ESP", "hill assist", "ISOFIX", "TPMS"
+   - Comfort: "sunroof", "panoramic sunroof", "leather seats", "ventilated seats", "cruise control", "rear AC"
+   - Technology: "touchscreen", "Android Auto", "Apple CarPlay", "wireless charging", "360 camera", "connected car"
+   - Convenience: "push button start", "keyless entry", "auto headlamps", "rain sensing wipers"
+   - Extract exact feature phrases as mentioned by user
+
+EXAMPLE INPUTS AND OUTPUTS:
+
+Input: "I have a budget of 5-6 lacs, looking for a car with sunroof, 6 airbags, and automatic transmission. Preferred brands are Hyundai or Kia"
+Output: {{"budget_min": 500000, "budget_max": 600000, "brands": ["Hyundai", "Kia"], "model": null, "fuel_type": null, "body_type": null, "seating_capacity": null, "transmission": "Automatic", "required_features": ["sunroof", "6 airbags"]}}
+
+Input: "Want a petrol SUV under 12 lakhs with 7 seats from Mahindra or Tata"
+Output: {{"budget_min": null, "budget_max": 1200000, "brands": ["Mahindra", "Tata"], "model": null, "fuel_type": "Petrol", "body_type": "SUV", "seating_capacity": 7, "transmission": null, "required_features": []}}
+
+Input: "Maruti Swift or Hyundai i20 around 8 lacs with Android Auto"
+Output: {{"budget_min": 800000, "budget_max": null, "brands": ["Maruti", "Hyundai"], "model": null, "fuel_type": null, "body_type": null, "seating_capacity": null, "transmission": null, "required_features": ["Android Auto"]}}
+
+Input: "diesel car with sunroof and cruise control, budget 10-15L"
+Output: {{"budget_min": 1000000, "budget_max": 1500000, "brands": [], "model": null, "fuel_type": "Diesel", "body_type": null, "seating_capacity": null, "transmission": null, "required_features": ["sunroof", "cruise control"]}}
+
+Return ONLY valid JSON (no markdown, no explanation, no extra text):
+{{
+  "budget_min": null,
+  "budget_max": null,
+  "brands": [],
+  "model": null,
+  "fuel_type": null,
+  "body_type": null,
+  "seating_capacity": null,
+  "transmission": null,
+  "required_features": []
+}}"""
+
+            model = genai.GenerativeModel(self.model)
+            response = model.generate_content(prompt)
+            
+            if not response.text:
+                return None
+            
+            # Clean response text - remove markdown code blocks if present
+            response_text = response.text.strip()
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.startswith("```"):
+                response_text = response_text[3:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
+            response_text = response_text.strip()
+                
+            # Parse JSON response
+            result = json.loads(response_text)
+            
+            # Validate and normalize the response
+            parsed = {
+                "budget_min": result.get("budget_min"),
+                "budget_max": result.get("budget_max"),
+                "brands": result.get("brands", []) or [],
+                "model": result.get("model"),
+                "fuel_type": result.get("fuel_type"),
+                "body_type": result.get("body_type"),
+                "seating_capacity": result.get("seating_capacity"),
+                "transmission": result.get("transmission"),
+                "required_features": result.get("required_features", []) or []
+            }
+            
+            # Ensure brands is a list
+            if isinstance(parsed["brands"], str):
+                parsed["brands"] = [parsed["brands"]]
+            
+            # Ensure required_features is a list
+            if isinstance(parsed["required_features"], str):
+                parsed["required_features"] = [parsed["required_features"]]
+                
+            # Convert seating_capacity to int if present
+            if parsed["seating_capacity"] is not None:
+                try:
+                    parsed["seating_capacity"] = int(parsed["seating_capacity"])
+                except (ValueError, TypeError):
+                    parsed["seating_capacity"] = None
+            
+            return parsed
+            
+        except json.JSONDecodeError as e:
+            print(f"[parse_search_query] JSON decode error: {e}")
+            return None
+        except Exception as e:
+            print(f"[parse_search_query] Error: {e}")
+            traceback.print_exc()
+            return None
     
     def get_recommendations(self, make: str, model: str, variant_name: str, num_recommendations: int = 3) -> Dict:
         """Get AI-powered recommendations for a variant
@@ -306,6 +460,84 @@ The **[Best Variant Name]** offers the BEST value for money. [Explain why this i
                             pass
         
         return scores
+
+    def get_budget_recommendation(self, candidates: List[Dict], search_params: Dict) -> Dict:
+        """Get AI-powered recommendation for budget search results.
+        
+        Args:
+            candidates: List of variant metadata dicts from search
+            search_params: Dict with budget_rupees, margin_pct, count, brand, model
+            
+        Returns:
+            Dict with status, recommendation text, and trace
+        """
+        self.trace = []
+        
+        if not candidates:
+            return {
+                'status': 'error',
+                'message': 'No candidates provided for recommendation',
+                'trace': self.trace
+            }
+        
+        try:
+            self.trace.append("🤖 Analyzing budget search results with AI...")
+            
+            # Build context
+            budget_rupees = search_params.get('budget_rupees', 0)
+            budget_lakhs = float(budget_rupees) / 100_000
+            margin_pct = search_params.get('margin_pct', 10)
+            
+            variants_text = []
+            for i, meta in enumerate(candidates, 1):
+                price = float(meta.get('price', 0))
+                price_lakhs = price / 100_000
+                diff_from_budget = price - budget_rupees
+                diff_text = f"+₹{diff_from_budget:,.0f}" if diff_from_budget >= 0 else f"-₹{abs(diff_from_budget):,.0f}"
+                
+                variants_text.append(
+                    f"{i}. {meta.get('make', '')} {meta.get('model', '')} {meta.get('variant_name', '')} "
+                    f"at ₹{price:,.0f} ({price_lakhs:.2f}L) [{meta.get('tier_name', '').title()} tier] ({diff_text} from budget)"
+                )
+            
+            prompt = f"""You are an expert car buying advisor. A customer is looking for cars within their budget.
+
+**Customer's Budget:** ₹{budget_lakhs:.2f} Lakhs (±{margin_pct}% margin)
+{f"**Preferred Brand:** {search_params.get('brand', 'Any')}" if search_params.get('brand') else "**Brand:** Open to all brands"}
+{f"**Preferred Model:** {search_params.get('model', 'Any')}" if search_params.get('model') else ""}
+
+**Available Options:**
+{chr(10).join(variants_text)}
+
+Please provide a brief but helpful recommendation that includes:
+1. A quick comparison of the options (1-2 sentences per option highlighting key differences)
+2. Your TOP PICK for best value within their budget with reasoning
+3. Any important considerations for the customer
+
+Keep your response concise (under 300 words) and focus on practical advice."""
+
+            model = genai.GenerativeModel(self.model)
+            response = model.generate_content(prompt)
+            
+            recommendation = response.text
+            if not recommendation or recommendation.strip() == "":
+                recommendation = "AI recommendation is currently unavailable."
+            
+            self.trace.append("✅ AI analysis complete!")
+            
+            return {
+                'status': 'success',
+                'recommendation': recommendation,
+                'trace': self.trace
+            }
+            
+        except Exception as e:
+            self.trace.append(f"❌ Error: {str(e)}")
+            return {
+                'status': 'error',
+                'message': str(e),
+                'trace': self.trace
+            }
 
 
 if __name__ == "__main__":

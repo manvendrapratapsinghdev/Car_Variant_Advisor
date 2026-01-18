@@ -1,9 +1,12 @@
 """
 ChromaDB client and collection management.
 """
+import os as _os
+# Silence noisy telemetry errors before importing chromadb
+_os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
+
 import chromadb
 from chromadb.config import Settings
-import os
 import re
 from typing import Dict, List, Optional
 import pandas as pd
@@ -32,7 +35,7 @@ class CarVariantDB:
         self.persist_directory = persist_directory
         
         # Create directory if it doesn't exist
-        os.makedirs(persist_directory, exist_ok=True)
+        _os.makedirs(persist_directory, exist_ok=True)
         
         # Initialize client
         self.client = chromadb.PersistentClient(path=persist_directory)
@@ -162,10 +165,9 @@ class CarVariantDB:
 def main():
     """Main ingestion script."""
     # Paths - use relative paths from project root
-    import os
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    pickle_path = os.path.join(project_root, "data/processed/cars_final_processed.pkl")
-    db_path = os.path.join(project_root, "data/car_variants_db")
+    project_root = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+    pickle_path = _os.path.join(project_root, "data/processed/cars_final_processed.pkl")
+    db_path = _os.path.join(project_root, "data/car_variants_db")
     
     # Load data
     print("Loading processed data...")

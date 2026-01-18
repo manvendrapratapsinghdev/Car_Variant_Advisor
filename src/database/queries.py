@@ -1,8 +1,9 @@
-"""
-Query utilities for car variant database.
+"""Query utilities for car variant database.
+
 Provides functions for UI dropdowns and variant retrieval.
 """
-from typing import List, Dict, Optional, Tuple
+
+from typing import List, Dict, Optional, Tuple, Iterable, Any
 from src.database.chroma_client import CarVariantDB
 import ast
 
@@ -16,7 +17,7 @@ class VariantQueries:
         self.collection = self.db.get_collection()
         
         if not self.collection:
-            raise Exception("Database collection not found. Run chroma_client.py first to ingest data.")
+            raise RuntimeError("Database collection not found. Run chroma_client.py first to ingest data.")
     
     def get_all_makes(self) -> List[str]:
         """
@@ -26,13 +27,13 @@ class VariantQueries:
             Sorted list of unique make names
         """
         # Get all documents and extract unique makes
-        result = self.collection.get()
+        result = self.collection.get(include=["metadatas"])
         
         if not result['metadatas']:
             return []
         
-        makes = set(meta['make'] for meta in result['metadatas'] if 'make' in meta)
-        return sorted(list(makes))
+        makes = {meta['make'] for meta in result['metadatas'] if 'make' in meta}
+        return sorted(makes)
     
     def get_models_by_make(self, make: str) -> List[str]:
         """
@@ -44,15 +45,13 @@ class VariantQueries:
         Returns:
             Sorted list of model names
         """
-        result = self.collection.get(
-            where={"make": make}
-        )
+        result = self.collection.get(where={"make": make}, include=["metadatas"])
         
         if not result['metadatas']:
             return []
         
-        models = set(meta['model'] for meta in result['metadatas'] if 'model' in meta)
-        return sorted(list(models))
+        models = {meta['model'] for meta in result['metadatas'] if 'model' in meta}
+        return sorted(models)
     
     def get_variants_by_model(self, make: str, model: str) -> List[Dict[str, any]]:
         """
@@ -65,9 +64,7 @@ class VariantQueries:
         Returns:
             List of dicts with variant_name, tier_order, tier_name, price
         """
-        result = self.collection.get(
-            where={"$and": [{"make": make}, {"model": model}]}
-        )
+        result = self.collection.get(where={"$and": [{"make": make}, {"model": model}]}, include=["metadatas"])
         
         if not result['metadatas']:
             return []
@@ -84,6 +81,83 @@ class VariantQueries:
         # Sort by tier_order
         variants.sort(key=lambda x: x['tier_order'])
         return variants
+
+    def get_price_range(self, make: Optional[str] = None, model: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
+        """Get min/max price from metadata (in rupees).
+
+        Args:
+            make: Optional make constraint
+            model: Optional model constraint (only meaningful with make)
+
+        Returns:
+            (min_price, max_price) or (None, None) if no records
+        """
+        where = self._build_where_clause(make=make, model=model)
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
+        metadatas = result.get('metadatas') or []
+        prices = [meta.get('price') for meta in metadatas if isinstance(meta, dict) and isinstance(meta.get('price'), (int, float))]
+        if not prices:
+            return None, None
+        return float(min(prices)), float(max(prices))
+
+    def find_variants_by_budget(
+        self,
+        budget_rupees: float,
+        pct: float,
+        make: Optional[str] = None,
+        model: Optional[str] = None,
+        k_min: int = 2,
+        k_max: int = 5,
+        expand_step_pct: float = 5.0,
+        max_pct: float = 50.0,
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """Find 2–5 candidate variants near a budget.
+
+        Behavior:
+        - Filters by price range computed from budget +/- pct
+        - Optional make/model constraints
+        - Sorts by nearest price to budget (stable ordering on ties)
+        - Dedupes while filling using (make, model, variant_name)
+        - Auto-expands margin if fewer than k_min candidates
+        - If still empty, falls back to nearest-lower and nearest-higher priced variants
+
+        Returns:
+            (candidates, meta)
+            meta includes flags: expanded (bool), used_fallback (bool), effective_pct (float)
+        """
+        if budget_rupees is None or not isinstance(budget_rupees, (int, float)):
+            return [], {"expanded": False, "used_fallback": False, "effective_pct": pct}
+
+        budget_rupees = float(budget_rupees)
+        pct = float(pct)
+        k_min = max(0, int(k_min))
+        k_max = max(k_min, int(k_max))
+
+        expanded = False
+        used_fallback = False
+        effective_pct = pct
+
+        candidates: List[Dict[str, Any]] = []
+        while True:
+            min_price, max_price = self._budget_bounds(budget_rupees, effective_pct)
+            metadatas = self._get_metadatas_in_price_range(min_price, max_price, make=make, model=model)
+            candidates = self._select_candidates_from_metadatas(metadatas, budget_rupees, k_max=k_max)
+
+            if len(candidates) >= k_min:
+                break
+
+            next_pct = effective_pct + float(expand_step_pct)
+            if next_pct > float(max_pct):
+                break
+
+            expanded = True
+            effective_pct = next_pct
+
+        if not candidates:
+            used_fallback = True
+            candidates = self._fallback_nearest_neighbors(budget_rupees, make=make, model=model, k_max=k_max)
+
+        return candidates, {"expanded": expanded, "used_fallback": used_fallback, "effective_pct": effective_pct}
     
     def get_variant_details(self, make: str, model: str, variant_name: str) -> Optional[Dict]:
         """
@@ -103,7 +177,8 @@ class VariantQueries:
                 {"model": model},
                 {"variant_name": variant_name}
             ]},
-            limit=1
+            limit=1,
+            include=["metadatas"],
         )
         
         if not result['metadatas']:
@@ -153,7 +228,8 @@ class VariantQueries:
                 {"make": make},
                 {"model": model},
                 {"tier_order": {"$gt": current_tier}}
-            ]}
+            ]},
+            include=["metadatas"],
         )
         
         if not result['metadatas']:
@@ -182,8 +258,423 @@ class VariantQueries:
             # Use ast.literal_eval to safely parse string representation of list
             features = ast.literal_eval(feature_str)
             return features if isinstance(features, list) else []
-        except:
+        except Exception:
             return []
+
+    @staticmethod
+    def _budget_bounds(budget_rupees: float, pct: float) -> Tuple[float, float]:
+        pct = max(0.0, float(pct))
+        delta = (pct / 100.0) * float(budget_rupees)
+        return float(budget_rupees - delta), float(budget_rupees + delta)
+
+    @staticmethod
+    def _dedupe_key(meta: Dict[str, Any]) -> Tuple[str, str, str]:
+        return (
+            str(meta.get('make', '')).strip(),
+            str(meta.get('model', '')).strip(),
+            str(meta.get('variant_name', '')).strip(),
+        )
+
+    @staticmethod
+    def _select_candidates_from_metadatas(
+        metadatas: Iterable[Dict[str, Any]],
+        budget_rupees: float,
+        k_max: int,
+    ) -> List[Dict[str, Any]]:
+        """Pure selection logic: sort by nearest price, stable on ties, and dedupe while filling."""
+        metas = [m for m in metadatas if isinstance(m, dict) and isinstance(m.get('price'), (int, float))]
+        indexed = list(enumerate(metas))
+        indexed.sort(key=lambda pair: (abs(float(pair[1]['price']) - float(budget_rupees)), pair[0]))
+
+        selected: List[Dict[str, Any]] = []
+        seen = set()
+        for _, meta in indexed:
+            key = VariantQueries._dedupe_key(meta)
+            if key in seen:
+                continue
+            seen.add(key)
+            selected.append(meta)
+            if len(selected) >= int(k_max):
+                break
+        return selected
+
+    def _build_where_clause(self, make: Optional[str] = None, model: Optional[str] = None, price_filter: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+        clauses: List[Dict[str, Any]] = []
+        if make:
+            clauses.append({"make": make})
+        if model:
+            clauses.append({"model": model})
+        if price_filter:
+            clauses.append({"price": price_filter})
+        if not clauses:
+            return None
+        if len(clauses) == 1:
+            return clauses[0]
+        return {"$and": clauses}
+
+    def _get_metadatas_in_price_range(
+        self,
+        min_price: float,
+        max_price: float,
+        make: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        # Chroma's where syntax expects operator expressions to contain exactly one operator.
+        # So a range must be expressed as an $and of two separate comparisons.
+        clauses: List[Dict[str, Any]] = []
+        if make:
+            clauses.append({"make": make})
+        if model:
+            clauses.append({"model": model})
+        clauses.append({"price": {"$gte": float(min_price)}})
+        clauses.append({"price": {"$lte": float(max_price)}})
+
+        if not clauses:
+            where = None
+        elif len(clauses) == 1:
+            where = clauses[0]
+        else:
+            where = {"$and": clauses}
+
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
+        return result.get('metadatas') or []
+
+    def _fallback_nearest_neighbors(
+        self,
+        budget_rupees: float,
+        make: Optional[str] = None,
+        model: Optional[str] = None,
+        k_max: int = 5,
+    ) -> List[Dict[str, Any]]:
+        """Fallback when range query is empty: return nearest lower + nearest higher (then fill outward if needed)."""
+        where = self._build_where_clause(make=make, model=model)
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
+        metadatas = [
+            m
+            for m in (result.get('metadatas') or [])
+            if isinstance(m, dict) and isinstance(m.get('price'), (int, float))
+        ]
+        if not metadatas:
+            return []
+
+        budget = float(budget_rupees)
+        all_sorted = self._sorted_by_distance(metadatas, budget)
+
+        picked: List[Dict[str, Any]] = []
+        seen = set()
+        self._append_first_match(picked, seen, all_sorted, predicate=lambda m: float(m['price']) <= budget)
+        self._append_first_match(picked, seen, all_sorted, predicate=lambda m: float(m['price']) >= budget)
+
+        if len(picked) >= int(k_max):
+            return picked[: int(k_max)]
+
+        for meta in all_sorted:
+            key = self._dedupe_key(meta)
+            if key in seen:
+                continue
+            seen.add(key)
+            picked.append(meta)
+            if len(picked) >= int(k_max):
+                break
+
+        return picked
+
+    def search_variants_by_budget(
+        self,
+        budget_rupees: float,
+        margin_pct: float,
+        count: int,
+        brand: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """Budget-only variant search (Phase 3 Revised).
+
+        Search Logic:
+        1. First search [budget, budget + margin] (upper range)
+        2. If fewer than count results, also search [budget - margin, budget] (lower range)
+        3. If still no results, return empty with 'no_results' flag
+
+        Args:
+            budget_rupees: Target budget in rupees
+            margin_pct: Margin percentage (default 10%)
+            count: Number of results to return (2-5, default 3)
+            brand: Optional brand filter (narrows results)
+            model: Optional model filter (narrows results, only with brand)
+
+        Returns:
+            (candidates, meta)
+            meta includes: searched_upper (bool), searched_lower (bool), no_results (bool)
+        """
+        if budget_rupees is None or not isinstance(budget_rupees, (int, float)):
+            return [], {"searched_upper": False, "searched_lower": False, "no_results": True}
+
+        budget = float(budget_rupees)
+        margin_pct = float(max(0.0, margin_pct))
+        count = int(max(2, min(5, count)))
+        delta = (margin_pct / 100.0) * budget
+
+        meta_info = {"searched_upper": True, "searched_lower": False, "no_results": False}
+
+        # Step 1: Search upper range [budget, budget + margin]
+        upper_min = budget
+        upper_max = budget + delta
+        upper_candidates = self._get_metadatas_in_price_range(upper_min, upper_max, make=brand, model=model)
+        selected = self._select_candidates_from_metadatas(upper_candidates, budget, k_max=count)
+
+        # Step 2: If fewer than count, also search lower range [budget - margin, budget)
+        if len(selected) < count:
+            meta_info["searched_lower"] = True
+            lower_min = budget - delta
+            lower_max = budget  # exclusive boundary conceptually, but inclusive in query
+            lower_candidates = self._get_metadatas_in_price_range(lower_min, lower_max, make=brand, model=model)
+            
+            # Exclude already-selected variants
+            seen_keys = {self._dedupe_key(m) for m in selected}
+            additional = [m for m in lower_candidates if self._dedupe_key(m) not in seen_keys]
+            
+            # Sort and fill up to count
+            additional_sorted = self._select_candidates_from_metadatas(additional, budget, k_max=count - len(selected))
+            selected.extend(additional_sorted)
+
+        # Step 3: If still empty, mark no_results
+        if not selected:
+            meta_info["no_results"] = True
+
+        # Final sort by price (ascending for comparison table)
+        selected.sort(key=lambda m: float(m.get('price', 0)))
+
+        return selected, meta_info
+
+    @staticmethod
+    def _sorted_by_distance(metadatas: List[Dict[str, Any]], budget_rupees: float) -> List[Dict[str, Any]]:
+        indexed = list(enumerate(metadatas))
+        indexed.sort(key=lambda pair: (abs(float(pair[1]['price']) - float(budget_rupees)), pair[0]))
+        return [meta for _, meta in indexed]
+
+    def _append_first_match(
+        self,
+        picked: List[Dict[str, Any]],
+        seen: set,
+        sorted_metas: List[Dict[str, Any]],
+        predicate,
+    ) -> None:
+        for meta in sorted_metas:
+            if not predicate(meta):
+                continue
+            key = self._dedupe_key(meta)
+            if key in seen:
+                continue
+            seen.add(key)
+            picked.append(meta)
+            return
+
+    def search_variants_by_requirements(
+        self,
+        budget_min: Optional[float] = None,
+        budget_max: Optional[float] = None,
+        margin_pct: float = 10.0,
+        brands: Optional[List[str]] = None,
+        model: Optional[str] = None,
+        fuel_type: Optional[str] = None,
+        body_type: Optional[str] = None,
+        seating_capacity: Optional[int] = None,
+        transmission: Optional[str] = None,
+        required_features: Optional[List[str]] = None,
+        count: int = 3,
+    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """Search variants by natural language parsed requirements (Phase 4).
+
+        Priority Order:
+        1. Price - strict filter within range
+        2. Brand(s) - OR condition for multiple brands
+        3. Model - requires brand to be set
+        4. Features - ranking score, not exclusion
+
+        Args:
+            budget_min: Minimum budget in rupees (if single value, apply margin_pct)
+            budget_max: Maximum budget in rupees (if None and budget_min set, apply margin_pct)
+            margin_pct: Margin percentage when only single budget value (default 10%)
+            brands: List of brand names to filter (OR condition)
+            model: Model name to filter (requires brands to have single value)
+            fuel_type: Fuel type filter (Petrol, Diesel, CNG, Electric)
+            body_type: Body type filter (Hatchback, Sedan, SUV, etc.)
+            seating_capacity: Seating capacity filter
+            transmission: Transmission type (Manual, Automatic)
+            required_features: List of features for ranking (not exclusion)
+            count: Number of results to return (default 3)
+
+        Returns:
+            (candidates, meta)
+            meta includes: filters_applied, relaxed, feature_scores
+        """
+        meta_info = {
+            "filters_applied": [],
+            "relaxed": False,
+            "no_results": False,
+            "feature_ranking_applied": False
+        }
+        
+        # Build base where clauses
+        clauses: List[Dict[str, Any]] = []
+        
+        # Priority 1: Price filter
+        if budget_min is not None or budget_max is not None:
+            if budget_min is not None and budget_max is None:
+                # Single value - apply margin
+                delta = (margin_pct / 100.0) * float(budget_min)
+                price_min = float(budget_min) - delta
+                price_max = float(budget_min) + delta
+                meta_info["filters_applied"].append(f"price: ₹{price_min:,.0f} - ₹{price_max:,.0f}")
+            elif budget_min is None and budget_max is not None:
+                # Only max specified (under X)
+                price_min = 0
+                price_max = float(budget_max)
+                meta_info["filters_applied"].append(f"price: under ₹{price_max:,.0f}")
+            else:
+                # Range specified
+                price_min = float(budget_min)
+                price_max = float(budget_max)
+                meta_info["filters_applied"].append(f"price: ₹{price_min:,.0f} - ₹{price_max:,.0f}")
+            
+            clauses.append({"price": {"$gte": price_min}})
+            clauses.append({"price": {"$lte": price_max}})
+        
+        # Priority 2: Brand filter (OR condition for multiple brands)
+        # ChromaDB doesn't support $or in where, so we'll filter in post-processing
+        brand_filter = None
+        if brands and len(brands) > 0:
+            brand_filter = [b.strip() for b in brands if b and b.strip()]
+            if brand_filter:
+                meta_info["filters_applied"].append(f"brands: {', '.join(brand_filter)}")
+        
+        # Priority 3: Model filter (only if single brand and model specified)
+        model_filter = None
+        if model and brand_filter and len(brand_filter) == 1:
+            model_filter = model.strip()
+            clauses.append({"model": model_filter})
+            meta_info["filters_applied"].append(f"model: {model_filter}")
+        
+        # Additional filters: fuel_type, body_type, seating_capacity, transmission
+        if fuel_type:
+            clauses.append({"fuel_type": fuel_type})
+            meta_info["filters_applied"].append(f"fuel_type: {fuel_type}")
+        
+        if body_type:
+            clauses.append({"body_type": body_type})
+            meta_info["filters_applied"].append(f"body_type: {body_type}")
+        
+        if seating_capacity:
+            clauses.append({"seating_capacity": str(seating_capacity)})
+            meta_info["filters_applied"].append(f"seating: {seating_capacity} seater")
+        
+        # Note: transmission is not stored as metadata, skip for now
+        
+        # Build final where clause
+        where = None
+        if len(clauses) == 1:
+            where = clauses[0]
+        elif len(clauses) > 1:
+            where = {"$and": clauses}
+        
+        # Execute query
+        result = self.collection.get(where=where, include=["metadatas"]) if where else self.collection.get(include=["metadatas"])
+        metadatas = result.get('metadatas') or []
+        
+        # Post-filter by brands (OR condition)
+        if brand_filter:
+            metadatas = [
+                m for m in metadatas 
+                if m.get('make', '').strip() in brand_filter
+            ]
+        
+        # If no results, try relaxing constraints
+        if not metadatas:
+            meta_info["relaxed"] = True
+            # Relax: remove brand filter, keep price
+            if brand_filter and where:
+                # Rebuild without brand
+                relaxed_clauses = [c for c in clauses if c != {"model": model_filter}]
+                if len(relaxed_clauses) == 1:
+                    relaxed_where = relaxed_clauses[0]
+                elif len(relaxed_clauses) > 1:
+                    relaxed_where = {"$and": relaxed_clauses}
+                else:
+                    relaxed_where = None
+                
+                result = self.collection.get(where=relaxed_where, include=["metadatas"]) if relaxed_where else self.collection.get(include=["metadatas"])
+                metadatas = result.get('metadatas') or []
+        
+        # If still no results
+        if not metadatas:
+            meta_info["no_results"] = True
+            return [], meta_info
+        
+        # Priority 4: Feature ranking (not exclusion)
+        if required_features and len(required_features) > 0:
+            meta_info["feature_ranking_applied"] = True
+            metadatas = self._score_by_features(metadatas, required_features)
+        
+        # Sort by feature_score (if applied), then by price
+        if meta_info["feature_ranking_applied"]:
+            metadatas.sort(key=lambda m: (-m.get('_feature_score', 0), float(m.get('price', 0))))
+        else:
+            metadatas.sort(key=lambda m: float(m.get('price', 0)))
+        
+        # Dedupe and limit results
+        candidates = self._select_candidates_from_metadatas(metadatas, budget_min or 0, k_max=count)
+        
+        # Clean up internal score field before returning
+        for c in candidates:
+            if '_feature_score' in c:
+                c['feature_score'] = c.pop('_feature_score')
+            if '_matched_features' in c:
+                c['matched_features'] = c.pop('_matched_features')
+        
+        return candidates, meta_info
+
+    def _score_by_features(
+        self, 
+        metadatas: List[Dict[str, Any]], 
+        required_features: List[str]
+    ) -> List[Dict[str, Any]]:
+        """Score variants by how many required features they contain.
+        
+        Args:
+            metadatas: List of variant metadata dicts
+            required_features: List of feature strings to search for
+            
+        Returns:
+            Same list with _feature_score and _matched_features added
+        """
+        feature_fields = [
+            'features_safety', 'features_comfort', 'features_technology',
+            'features_exterior', 'features_convenience'
+        ]
+        
+        # Normalize required features for matching
+        required_normalized = [f.lower().strip() for f in required_features]
+        
+        for meta in metadatas:
+            score = 0
+            matched = []
+            
+            # Combine all feature fields
+            all_features_text = ""
+            for field in feature_fields:
+                field_value = meta.get(field, "")
+                if field_value:
+                    all_features_text += " " + field_value.lower()
+            
+            # Check each required feature
+            for req_feat in required_normalized:
+                if req_feat in all_features_text:
+                    score += 1
+                    matched.append(req_feat)
+            
+            meta['_feature_score'] = score
+            meta['_matched_features'] = matched
+        
+        return metadatas
 
 
 # Module-level convenience functions
@@ -225,6 +716,127 @@ def find_upgrade_options(make: str, model: str, current_tier: int, limit: int = 
     return _queries.find_upgrade_options(make, model, current_tier, limit)
 
 
+def get_price_range(make: Optional[str] = None, model: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
+    """Get min/max price in rupees for optional constraints."""
+    if not _queries:
+        init_queries()
+    return _queries.get_price_range(make=make, model=model)
+
+
+def find_variants_by_budget(
+    budget_rupees: float,
+    pct: float,
+    make: Optional[str] = None,
+    model: Optional[str] = None,
+    k_min: int = 2,
+    k_max: int = 5,
+    expand_step_pct: float = 5.0,
+    max_pct: float = 50.0,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Module-level wrapper for budget-based candidate search."""
+    if not _queries:
+        init_queries()
+    return _queries.find_variants_by_budget(
+        budget_rupees=budget_rupees,
+        pct=pct,
+        make=make,
+        model=model,
+        k_min=k_min,
+        k_max=k_max,
+        expand_step_pct=expand_step_pct,
+        max_pct=max_pct,
+    )
+
+
+def search_variants_by_budget(
+    budget_rupees: float,
+    margin_pct: float,
+    count: int,
+    brand: Optional[str] = None,
+    model: Optional[str] = None,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Module-level wrapper for budget-only variant search (Phase 3 Revised).
+
+    Search Logic:
+    1. First search [budget, budget + margin] (upper range)
+    2. If fewer than count results, also search [budget - margin, budget] (lower range)
+    3. If still no results, return empty list
+
+    Args:
+        budget_rupees: Target budget in rupees
+        margin_pct: Margin percentage (default 10%)
+        count: Number of results to return (2-5, default 3)
+        brand: Optional brand filter
+        model: Optional model filter
+
+    Returns:
+        (candidates, meta)
+    """
+    if not _queries:
+        init_queries()
+    return _queries.search_variants_by_budget(
+        budget_rupees=budget_rupees,
+        margin_pct=margin_pct,
+        count=count,
+        brand=brand,
+        model=model,
+    )
+
+
+def search_variants_by_requirements(
+    budget_min: Optional[float] = None,
+    budget_max: Optional[float] = None,
+    margin_pct: float = 10.0,
+    brands: Optional[List[str]] = None,
+    model: Optional[str] = None,
+    fuel_type: Optional[str] = None,
+    body_type: Optional[str] = None,
+    seating_capacity: Optional[int] = None,
+    transmission: Optional[str] = None,
+    required_features: Optional[List[str]] = None,
+    count: int = 3,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Module-level wrapper for requirement-based variant search (Phase 4).
+
+    Priority Order:
+    1. Price - strict filter within range
+    2. Brand(s) - OR condition for multiple brands
+    3. Model - requires brand to be set
+    4. Features - ranking score, not exclusion
+
+    Args:
+        budget_min: Minimum budget in rupees
+        budget_max: Maximum budget in rupees
+        margin_pct: Margin percentage when only single budget value (default 10%)
+        brands: List of brand names to filter (OR condition)
+        model: Model name to filter (requires brands)
+        fuel_type: Fuel type filter
+        body_type: Body type filter
+        seating_capacity: Seating capacity filter
+        transmission: Transmission type
+        required_features: List of features for ranking
+        count: Number of results to return (default 3)
+
+    Returns:
+        (candidates, meta)
+    """
+    if not _queries:
+        init_queries()
+    return _queries.search_variants_by_requirements(
+        budget_min=budget_min,
+        budget_max=budget_max,
+        margin_pct=margin_pct,
+        brands=brands,
+        model=model,
+        fuel_type=fuel_type,
+        body_type=body_type,
+        seating_capacity=seating_capacity,
+        transmission=transmission,
+        required_features=required_features,
+        count=count,
+    )
+
+
 if __name__ == "__main__":
     # Test queries
     print("=== Testing Query Utilities ===\n")
@@ -250,7 +862,7 @@ if __name__ == "__main__":
     # Test 4: Get details for specific variant
     details = get_variant_details("Maruti", "Swift", "Vdi")
     if details:
-        print(f"\n4. Swift Vdi details:")
+        print("\n4. Swift Vdi details:")
         print(f"   Price: ₹{details['price']:,.0f}")
         print(f"   Tier: {details['tier_name']} (order: {details['tier_order']})")
         print(f"   Safety features: {len(details['features']['safety'])}")
@@ -259,7 +871,7 @@ if __name__ == "__main__":
     # Test 5: Find upgrades
     if details:
         upgrades = find_upgrade_options("Maruti", "Swift", details['tier_order'])
-        print(f"\n5. Upgrade options for Swift Vdi:")
+        print("\n5. Upgrade options for Swift Vdi:")
         for up in upgrades:
             print(f"   - {up['variant_name']} ({up['tier_name']}) - ₹{up['price']:,.0f}")
             print(f"     Features: {len(up['features']['safety'])} safety, {len(up['features']['technology'])} tech")
